@@ -18,6 +18,11 @@
  * |          |           |
  * |          栈          | （栈从大地址向小地址生长）
  * |——————————————————————| 16MB 0x00ffffff
+ * 
+ * 采用大端法存储
+ * 例如 0x12345678
+ * | 0x12 | 0x34 | 0x56 | 0x78 |
+ * --->     地址从小到大     --->
  */
 var code = new Array();//代码段
 var ip = 1;//IP寄存器
@@ -39,14 +44,23 @@ var sbp = 0x00ffffff;//栈基指针
  */
 function pushStack(num){
     stack.push(num);
-    esp += 1;
+    sp += 1;
 }
 
 /**
  * 出栈原子操作（只操作一个字节）
  */
 function popStack(){
+    sp -= 1;
     return stack.pop();
+}
+
+/**
+ * 获取新的全局变量（单个字节读入）
+ */
+function getNewCode(newGlobalBit){
+    code.push(newGlobalBit);
+    gp += 1;
 }
 
 /**
@@ -56,14 +70,6 @@ function putNewCode(newCode){
     code.push(newCode);
     cp += 1;
     run();
-}
-
-/**
- * 获取新的全局变量（单个字节读入）
- */
-function getNewCode(newGlobalBit){
-    code.push(newGlobalBit);
-    gp += 1;
 }
 
 /**

@@ -1,0 +1,66 @@
+<html>
+<body>
+  <button class="button-yunxing" onclick="yunxing()" type="button">
+    运行
+  </button>
+  <div class="main">
+    <div class="left">
+      <div>1</div>
+      <div>2</div>
+      <div>3</div>
+      <div>4</div>
+      <div>5</div>
+      <div>6</div>
+    </div>
+    <div class="right">
+      <div class="class1" id="1">int a=1</div>
+      <div class="class1" id="2">int a=2</div>
+      <div class="class1" id="3">int a=3</div>
+      <div class="class1" id="4">int a=4</div>
+      <div class="class1" id="5">int a=5</div>
+      <div class="class1" id="6">int a=6</div>
+    </div>
+  </div>
+</body>
+</html>
+<script type="text/javascript" src="Vm.js"></script>
+<script language=javascript>
+  pushStack(0x10);
+  pushStack(0x20);
+  pushStack(0x30);
+  pushStack(0x40);
+  console.log(popStack());
+  console.log(popStack());
+  console.log(popStack());
+  console.log(popStack());
+</script>
+<style scoped>
+.button-yunxing{
+	width: 50px
+}
+.main{
+  border-style: solid;
+  border-top-width: 1px;
+  border-right-width: 1px;
+  border-bottom-width: 1px;
+  border-left-width: 1px;
+}
+.left{
+  width: 10px;
+  border-style: solid;
+  border-top-width: 0px;
+  border-right-width: 1px;
+  border-bottom-width: 0px;
+  border-left-width: 0px;
+}
+.right{
+  margin-top: -8%;
+  margin-left: 15
+}
+.class1{
+  background-color: white;
+}
+.class2{
+  background-color: red;
+}
+</style>
