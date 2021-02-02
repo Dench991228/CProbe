@@ -132,7 +132,7 @@ function run(){
             case "store.64":  break;
             case "alloc":  break;
             case "free":  break;
-            case "stackalloc":  break;
+            case "stackalloc":  sp-=8; break;
             case "add.i":  break;
             case "sub.i":  break;
             case "mul.i":  break;
