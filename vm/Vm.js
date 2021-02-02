@@ -52,7 +52,7 @@ function popStack(){
 /**
  * 读入指令码
  */
-function getNewCode(newCode){
+function putNewCode(newCode){
     code.push(newCode);
     cp += 1;
     run();
@@ -99,10 +99,74 @@ function run(){
     else{ //此时可以执行指令
         /**
          * 下面是需要执行的指令
+         * 无操作数指令
+         * var instruct = {opt:"nop"}
+         * 有操作数指令
+         * var instruct = {opt:"push",num:100}
          */
-        var instruction =  code[ip];
-        var opt = instruction.opt;
-        var optnum = instruction.optnum;
-        
+        var instruction =  code[ip];//获取此时的指令对象
+        var opt = instruction.opt;//指令
+        var optnum = instruction.num;//指令操作数
+        switch (opt){
+            case "nop":  break;
+            case "push":  break;
+            case "pop":  break;
+            case "popn":  break;
+            case "dup":  break;
+            case "loca":  break;
+            case "arga":  break;
+            case "globa":  break;
+            case "load.8":  break;
+            case "load.16":  break;
+            case "load.32":  break;
+            case "load.64":  break;
+            case "store.8":  break;
+            case "store.16":  break;
+            case "store.32":  break;
+            case "store.64":  break;
+            case "alloc":  break;
+            case "free":  break;
+            case "stackalloc":  break;
+            case "add.i":  break;
+            case "sub.i":  break;
+            case "mul.i":  break;
+            case "div.i":  break;
+            case "add.f":  break;
+            case "sub.f":  break;
+            case "mul.f":  break;
+            case "div.f":  break;
+            case "div.u":  break;
+            case "shl":  break;
+            case "shr":  break;
+            case "and":  break;
+            case "or":  break;
+            case "xor":  break;
+            case "not":  break;
+            case "cmp.i":  break;
+            case "cmp.u":  break;
+            case "cmp.f":  break;
+            case "neg.i":  break;
+            case "neg.f":  break;
+            case "itof":  break;
+            case "ftoi":  break;
+            case "shrl":  break;
+            case "set.lt":  break;
+            case "set.gt":  break;
+            case "br":  break;
+            case "br.false":  break;
+            case "br.true":  break;
+            case "call":  break;
+            case "ret":  break;
+            case "callname":  break;
+            case "scan.i":  break;
+            case "scan.c":  break;
+            case "scan.f":  break;
+            case "print.i":  break;
+            case "print.c":  break;
+            case "print.f":  break;
+            case "print.s":  break;
+            case "println":  break;
+            case "panic":  break;
+        }
     }
 }
