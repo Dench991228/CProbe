@@ -29,10 +29,10 @@ var ip = 1;//IP寄存器
 var globalSpace = new Array();//全局变量空间
 var stack = new Array();//栈空间
 var heap = new Array();//堆空间
-var cp = 0x00000000;//代码偏移指针
-var gp = 0x00000000;//全局变量偏移指针
-var hp = 0x00000000;//堆偏移指针
-var sp = 0x00000000;//栈偏移指针
+var cp = -1;//代码偏移指针
+var gp = -1;//全局变量偏移指针
+var hp = -1;//堆偏移指针
+var sp = -1;//栈偏移指针
 var cbp = 0x00000000;//代码段基指针
 var gbp = 0x001fffff;//全局变量基指针
 var hbp = 0x003fffff;//堆基指针
@@ -59,7 +59,7 @@ function popStack(){
  * 获取新的全局变量（单个字节读入）
  */
 function getNewCode(newGlobalBit){
-    code.push(newGlobalBit);
+    globalSpace.push(newGlobalBit);
     gp += 1;
 }
 
