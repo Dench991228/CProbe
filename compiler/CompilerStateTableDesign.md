@@ -8,6 +8,7 @@ The whole expression is like a binary branch tree, I'll use a stack to maintain 
     - result type: string
     - left value: boolean
     - left child finished: boolean
+    - is constant expression: boolean
     
 When entering a state push in a brand-new state,when exiting a state, update its state and poll it from the stack and save it.
 #### Declaration State
