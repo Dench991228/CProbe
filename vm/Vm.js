@@ -95,6 +95,9 @@ function accessAddress(address){
     }
 }
 
+// 逻辑地址存储，待补充
+function storeAddress(address, val){}
+
 /**
  * 指令执行模块
  */
@@ -113,26 +116,55 @@ function run(){
         var instruction =  code[ip];//获取此时的指令对象
         var opt = instruction.opt;//指令
         var optnum = instruction.num;//指令操作数
+        let temp, stemp //临时变量
         switch (opt){
             case "nop":  break;
-            case "push":  break;
-            case "pop":  break;
-            case "popn":  break;
-            case "dup":  break;
+            case "push":
+                pushNum(optnum)
+                break;
+            case "pop":
+                popNum()
+                break;
+            case "popn":
+                for(let i=0; i<optnum; i++){
+                    popNum()
+                }
+                break;
+            case "dup":
+                temp = popNum()
+                pushNum(temp)
+                pushNum(temp)
+                break;
             case "loca":  break;
             case "arga":  break;
             case "globa":  break;
-            case "load.8":  break;
-            case "load.16":  break;
-            case "load.32":  break;
-            case "load.64":  break;
-            case "store.8":  break;
-            case "store.16":  break;
-            case "store.32":  break;
-            case "store.64":  break;
+            case "load.8":
+                loadNum(8)
+                break;
+            case "load.16":
+                loadNum(16)
+                break;
+            case "load.32":
+                loadNum(32)
+                break;
+            case "load.64":
+                loadNum(64)
+                break;
+            case "store.8":
+                storeNum(8)
+                break;
+            case "store.16":
+                storeNum(16)
+                break;
+            case "store.32":
+                storeNum(32)
+                break;
+            case "store.64":
+                storeNum(64)
+                break;
             case "alloc":  break;
             case "free":  break;
-            case "stackalloc":  break;
+            case "stackalloc":  sp-=8; break;
             case "add.i":  break;
             case "sub.i":  break;
             case "mul.i":  break;
@@ -156,11 +188,33 @@ function run(){
             case "itof":  break;
             case "ftoi":  break;
             case "shrl":  break;
-            case "set.lt":  break;
-            case "set.gt":  break;
-            case "br":  break;
-            case "br.false":  break;
-            case "br.true":  break;
+            case "set.lt":
+                temp = popNum()
+                if(temp<0)
+                    pushNum(1)
+                else
+                    pushNum(0)
+                break;
+            case "set.gt":
+                temp = popNum()
+                if(temp>0)
+                    pushNum(1)
+                else
+                    pushNum(0)
+                break;
+            case "br":
+                ip += optnum
+                break;
+            case "br.false":
+                temp = popNum()
+                if(temp===0)
+                    ip += optnum
+                break;
+            case "br.true":
+                temp = popNum()
+                if(temp!==0)
+                    ip += optnum
+                break;
             case "call":  break;
             case "ret":  break;
             case "callname":  break;
@@ -175,4 +229,77 @@ function run(){
             case "panic":  break;
         }
     }
+}
+
+// 输入要入栈的数字，位数默认64，执行大端法入栈操作
+function pushNum(num){
+    let bits=64
+    if(bits%4!==0)
+        bits = bits-(bits%4)+4
+    bits /= 4
+    let snum = num.toString(16)
+    if(snum.length>=bits){
+        snum = snum.substr(snum.length-bits)
+    }
+    else {
+        for(let i=bits-snum.length; i>0; i--)
+            snum = "0" + snum
+    }
+
+    for(i=0; i<bits; i+=2){
+        // subsnum = snum.substr(i, 2)
+        // console.log(subsnum)
+        // console.log(parseInt(subsnum, 16))
+        // pushStack(parseInt(subsnum, 16))
+        pushStack(snum.substr(i, 2))
+    }
+}
+
+// 位数默认64，执行大端法出栈操作
+function popNum(){
+    let bits=64
+    if(bits%4!==0)
+        bits = bits-(bits%4)+4
+    if(bits>64)
+        throw new Error("error bits")
+    bits /= 8
+    num = ""
+    for(let i=0; i<bits; i++){
+        num = popStack() + num
+    }
+    return parseInt(num, 16)
+}
+
+// 用于load.x
+function loadNum(bits){
+    if(bits%8!==0)
+        throw new Error("error bits")
+    bits /= 8
+    let stemp="", addr = popNum()
+    for(let i=0; i<bits; i++){
+        stemp = accessAddress(addr-i) + stemp
+    }
+    pushNum(stemp)
+    // return parseInt(stemp, 16)
+}
+
+// 用于store.x
+function storeNum(bits){
+    if(bits%8!==0)
+        throw new Error("error bits")
+    bits /= 4
+    let val = popNum(), addr = popNum()
+    let snum = val.toString(16)
+    if(snum.length>=bits){
+        snum = snum.substr(snum.length-bits)
+    }
+    else {
+        for(let i=bits-snum.length; i>0; i--)
+            snum = "0" + snum
+    }
+    for(let i=0; i<bits; i+=2){
+        storeAddress(addr-i/2, snum.substr(bits-2-i, 2))
+        // stemp = accessAddress(addr-i) + stemp
+    }
+    // return parseInt(stemp, 16)
 }
