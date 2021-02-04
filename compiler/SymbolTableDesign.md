@@ -45,6 +45,8 @@
     - fields: indexed by the name of field, others are the same
   
 - typedef:
-  - pretty resembles macros
-  - new types are identifiers as well
-  
+  - features:
+    - pretty resembles macros
+    - new types are identifiers as well
+  - 
+    

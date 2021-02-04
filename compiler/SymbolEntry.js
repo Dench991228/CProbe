@@ -1,0 +1,3 @@
+function SymbolEntry(){
+    return this
+}
