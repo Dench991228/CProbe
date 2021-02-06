@@ -1,4 +1,7 @@
-test_obj = new Object()
-console.log(test_obj['try'])
-test_obj.try = "hahaha";
-console.log(test_obj['try'])
+function display(){
+    let str = document.getElementById("editor").textContent
+    console.log("str:"+str);
+    for(let i=0;i<str.length;i++){
+        console.log(str.charAt(i)+":"+str.charCodeAt(i).toString(16))
+    }
+}

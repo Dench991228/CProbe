@@ -3,6 +3,7 @@ function SymbolEntry(){
     this.IdentifierType = undefined;// variable/function/struct/enumeration/typedef
     this.IsConstant = [];// is the pointer a constant.
     this.DataType = undefined;// the final type of the identifier.
+    this.StorageType = undefined; // static or local
 
     /*things about array*/
     this.Sizes = [];// the size of dimensions of array.
@@ -20,3 +21,5 @@ function SymbolEntry(){
 
     return this
 }
+
+exports.SymbolEntry = SymbolEntry;

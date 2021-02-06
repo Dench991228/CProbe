@@ -4,3 +4,4 @@ function SymbolTable(){
     return this
 }
 
+exports.SymbolTable = SymbolTable;

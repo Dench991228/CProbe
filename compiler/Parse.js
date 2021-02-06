@@ -14,6 +14,7 @@ function executeParse() {
     parser.buildParseTrees = true;
 
     antlr4.tree.ParseTreeWalker.DEFAULT.walk(new CustomListener(), parser.translationUnit())
+    display()
 }
 
 window.executeParse = executeParse;

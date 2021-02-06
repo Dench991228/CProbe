@@ -15,4 +15,15 @@ CustomListener.prototype.constructor = CListener;
 CustomListener.prototype.enterPrimaryExpression = function(ctx){
     document.getElementById("output").innerHTML+=ctx.getText();
 }
+
+CustomListener.prototype.exitDeclaration = function(ctx){
+    let count_child = ctx.getChildCount();
+    for(let i = 0;i < count_child; i++){
+        console.log(ctx.getChild(i).getText());
+    }
+}
+
+CustomListener.prototype.exitIterationStatement = function(ctx){
+    document.getElementById("output").innerHTML += ctx.getText();
+}
 exports.CustomListener = CustomListener;

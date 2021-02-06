@@ -1,6 +1,6 @@
 // Generated from C.g4 by ANTLR 4.7
 // jshint ignore: start
-var antlr4 = require('./antlr4/index');
+var antlr4 = require('antlr4/index');
 var CListener = require('./CListener').CListener;
 var grammarFileName = "C.g4";
 
