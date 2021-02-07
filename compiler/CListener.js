@@ -263,12 +263,39 @@ CListener.prototype.exitStorageClassSpecifier = function(ctx) {
 };
 
 
-// Enter a parse tree produced by CParser#typeSpecifier.
-CListener.prototype.enterTypeSpecifier = function(ctx) {
+// Enter a parse tree produced by CParser#BasicTypeSpecifier.
+CListener.prototype.enterBasicTypeSpecifier = function(ctx) {
 };
 
-// Exit a parse tree produced by CParser#typeSpecifier.
-CListener.prototype.exitTypeSpecifier = function(ctx) {
+// Exit a parse tree produced by CParser#BasicTypeSpecifier.
+CListener.prototype.exitBasicTypeSpecifier = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#StructUnionSpecifier.
+CListener.prototype.enterStructUnionSpecifier = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#StructUnionSpecifier.
+CListener.prototype.exitStructUnionSpecifier = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#EnumerationSpecifier.
+CListener.prototype.enterEnumerationSpecifier = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#EnumerationSpecifier.
+CListener.prototype.exitEnumerationSpecifier = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#TypeDefSpecifier.
+CListener.prototype.enterTypeDefSpecifier = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#TypeDefSpecifier.
+CListener.prototype.exitTypeDefSpecifier = function(ctx) {
 };
 
 

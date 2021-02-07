@@ -203,12 +203,10 @@ typeSpecifier
     |   'float'
     |   'double'
     |   'signed'
-    |   'unsigned')
-    |   atomicTypeSpecifier
-    |   structOrUnionSpecifier
-    |   enumSpecifier
-    |   typedefName
-    |   typeSpecifier pointer
+    |   'unsigned')                 # BasicTypeSpecifier
+    |   structOrUnionSpecifier      # StructUnionSpecifier
+    |   enumSpecifier               # EnumerationSpecifier
+    |   typedefName                 # TypeDefSpecifier
     ;
 
 structOrUnionSpecifier
