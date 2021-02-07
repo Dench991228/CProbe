@@ -36,6 +36,14 @@ CustomListener.prototype.enterDeclaration = function(ctx){
 CustomListener.prototype.exitBasicTypeSpecifier = function(ctx){
     this.CurrentDeclaration.addTypeSpecifier(ctx);
 }
+/*收到了一个TypeQualifier*/
+CustomListener.prototype.exitTypeQualifier = function(ctx){
+    this.CurrentDeclaration.addTypeQualifier(ctx);
+}
+/*收到了一个Storage Specifier*/
+CustomListener.prototype.exitStorageClassSpecifier = function(ctx){
+    this.CurrentDeclaration.addStorageSpecifier(ctx);
+}
 /*离开了Declaration，展示相关信息*/
 CustomListener.prototype.exitDeclaration = function(ctx){
     document.getElementById("output").innerHTML+= (this.CurrentDeclaration.toString()+"<br>");
