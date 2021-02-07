@@ -849,7 +849,7 @@ PragmaDirective
     ;
 
 Whitespace
-    :   [\u0020\u00a0\t]+
+    :   [ \t]+
         -> skip
     ;
 

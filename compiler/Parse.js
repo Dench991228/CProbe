@@ -6,7 +6,7 @@ const CustomListener = require("./CustomListener.js").CustomListener
 function executeParse() {
     document.getElementById("output").innerHTML = "";
     //document.getElementById("stack").innerHTML = "";
-    var input = document.getElementById('editor').textContent;
+    var input = document.getElementById('editor').textContent.replaceAll("\u00a0", " ");
     var input_stream = new antlr4.InputStream(input);
     var lexer = new CustomLexer.CLexer(input_stream);
     var tokens  = new antlr4.CommonTokenStream(lexer);
@@ -14,7 +14,6 @@ function executeParse() {
     parser.buildParseTrees = true;
 
     antlr4.tree.ParseTreeWalker.DEFAULT.walk(new CustomListener(), parser.translationUnit())
-    display()
 }
 
 window.executeParse = executeParse;
