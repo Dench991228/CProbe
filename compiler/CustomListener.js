@@ -48,5 +48,8 @@ CustomListener.prototype.exitStorageClassSpecifier = function(ctx){
 CustomListener.prototype.exitDeclaration = function(ctx){
     document.getElementById("output").innerHTML+= (this.CurrentDeclaration.toString()+"<br>");
 }
-
+/*研究一下离开指针的时候指针是个什么状态*/
+CustomListener.prototype.exitPointer = function(ctx){
+    console.log(ctx.getText());
+}
 exports.CustomListener = CustomListener;
