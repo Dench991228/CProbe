@@ -2,7 +2,7 @@
 // jshint ignore: start
 var antlr4 = require('./antlr4/index');
 const CListener = require('./CListener').CListener
-var VariableDeclaration = require("./VariableDeclaration").VariableDeclaration
+var VariableDeclaration = require("./declaration/VariableDeclaration").VariableDeclaration
 
 // This class defines a complete listener for a parse tree produced by CParser.
 function CustomListener() {
@@ -50,6 +50,12 @@ CustomListener.prototype.exitDeclaration = function(ctx){
 }
 /*研究一下离开指针的时候指针是个什么状态*/
 CustomListener.prototype.exitPointer = function(ctx){
-    console.log(ctx.getText());
+    console.log("exit pointer: "+ctx.getText())
+    for(let i=0; i<ctx.getChildCount();i++){
+        console.log(ctx.getChild(i).getText());
+    }
+}
+CustomListener.prototype.enterPointer = function(ctx){
+    console.log("enter pointer: "+ctx.getText());
 }
 exports.CustomListener = CustomListener;

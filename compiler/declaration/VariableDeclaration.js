@@ -2,10 +2,6 @@
 function VariableDeclaration(){
     return this;
 }
-/*主要用来关注指针和数组的情况*/
-function VariableDeclarator(){
-    return this;
-}
 
 VariableDeclaration.prototype.IsStatic = false;//记录其存储方式
 /*类型相关*/
@@ -18,15 +14,18 @@ VariableDeclaration.prototype.ExportEntry = function(){//把当前的声明导�
 
 }
 /**
- * 增加一个storage specifier，并且检查有没有冲突，理论上来讲，只允许unsigned signed与其他整数类型组合，否则不行，现在先只管基本变量类型
- * 之后要考虑typeName，struct，enum之类的
- * @param specifier 输入的storage specifier
+ * 增加一个storage specifier，目前只考虑static，先不考虑register，auto，extern之类的
  * */
 VariableDeclaration.prototype.addStorageSpecifier = function(specifier){
     if(specifier.getText()==="static"){
         this.IsStatic = true;
     }
 }
+/**
+ * 增加一个storage specifier，并且检查有没有冲突，理论上来讲，只允许unsigned signed与其他整数类型组合，否则不行，现在先只管基本变量类型
+ * 之后要考虑typeName，struct，enum之类的
+ * @param specifier 输入的storage specifier
+ * */
 VariableDeclaration.prototype.addTypeSpecifier = function(specifier){
     if(this.Signed!==undefined&&specifier.getText()==="unsigned"){
         if(this.Signed===true){
@@ -69,4 +68,3 @@ VariableDeclaration.prototype.toString = function(ctx){
 }
 
 exports.VariableDeclaration = VariableDeclaration
-exports.VariableDeclarator = VariableDeclarator
