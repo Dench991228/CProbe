@@ -11,7 +11,7 @@ VariableDeclaration.prototype.IsConstant = false;//是不是常量，用来对�
 /*被声明的东西*/
 VariableDeclaration.prototype.CurrentDeclarator = undefined;//记录当前正在被声明的Declarator
 VariableDeclaration.prototype.ExportEntry = function(){//把当前的声明导出成一个符号表表项
-
+    return this;
 }
 /**
  * 增加一个storage specifier，目前只考虑static，先不考虑register，auto，extern之类的
@@ -64,7 +64,7 @@ VariableDeclaration.prototype.toString = function(ctx){
     let constant = "constant: "+this.IsConstant;
     let signed = "signed: "+(this.Signed===undefined?"signed":this.Signed);
     let type = "type: "+ (this.Type!==undefined?this.Type:"integer(default)");
-    return isStatic+"<br>"+constant+"<br>"+signed+"<br>"+type;
+    return isStatic+"<br>"+constant+"<br>"+signed+"<br>"+type+"<br>";
 }
 
 exports.VariableDeclaration = VariableDeclaration

@@ -300,7 +300,7 @@ directDeclarator
 
 pointer
     :   '*' typeQualifierList?
-    |   '*' typeQualifierList? pointer
+    |   pointer '*' typeQualifierList?
     |   '^' typeQualifierList? // Blocks language extension
     |   '^' typeQualifierList? pointer // Blocks language extension
     ;
