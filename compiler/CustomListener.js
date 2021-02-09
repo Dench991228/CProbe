@@ -2,7 +2,7 @@
 // jshint ignore: start
 var antlr4 = require('./antlr4/index');
 const CListener = require('./CListener').CListener
-var VariableDeclaration = require("./declaration/VariableDeclaration").VariableDeclaration
+var VariableDeclaration = require("./declaration/Declaration").VariableDeclaration
 var VariableDeclarator = require("./declaration/VariableDeclarator").VariableDeclarator
 var Dict = require("./common/Contexts").ContextDict
 
@@ -59,9 +59,9 @@ CustomListener.prototype.exitDeclaration = function(ctx){
     console.log("exiting declaration");
     for(let i = 0;i < count_child; i++){
         if(ctx.getChild(i).ruleIndex!==undefined){
-            console.log(ctx.getChild(i).getText()+":"+ctx.getChild(i).ruleIndex)
+            console.log(ctx.getChild(i).getText()+":"+ctx.getChild(i).ruleIndex);
         }else{
-            console.log(ctx.getChild(i).getText()+":"+ctx.getChild(i).symbol)
+            console.log(ctx.getChild(i).getText()+":"+ctx.getChild(i).symbol.toString());
         }
     }
 }

@@ -2,15 +2,34 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4dddd050-2b89-4459-ae77-2a7f083430f3" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/compiler/SymbolTableDesign.md" beforeDir="false" afterPath="$PROJECT_DIR$/compiler/SymbolTableDesign.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/compiler/CustomListener.js" beforeDir="false" afterPath="$PROJECT_DIR$/compiler/CustomListener.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/compiler/declaration/VariableDeclaration.js" beforeDir="false" afterPath="$PROJECT_DIR$/compiler/declaration/Declaration.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/compiler/declaration/VariableDeclarator.js" beforeDir="false" afterPath="$PROJECT_DIR$/compiler/declaration/VariableDeclarator.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/compiler/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/compiler/index.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="JavaScript File" />
+      </list>
+    </option>
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitSEFilterConfiguration">
+    <file-type-list>
+      <filtered-out-file-type name="LOCAL_BRANCH" />
+      <filtered-out-file-type name="REMOTE_BRANCH" />
+      <filtered-out-file-type name="TAG" />
+      <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
+    </file-type-list>
   </component>
   <component name="ProjectId" id="1nyP6D8PWCNmeFEAHeRkEHcIK0G" />
   <component name="ProjectViewState">
@@ -28,8 +47,14 @@
     <property name="node.js.path.for.package.tslint" value="project" />
     <property name="node.js.selected.package.eslint" value="(autodetect)" />
     <property name="node.js.selected.package.tslint" value="(autodetect)" />
-    <property name="settings.editor.selected.configurable" value="editor.preferences.fonts.default" />
+    <property name="nodejs_package_manager_path" value="npm" />
+    <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
     <property name="vue.rearranger.settings.migration" value="true" />
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\github\CProbe\compiler\common" />
+    </key>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -40,7 +65,16 @@
       <option name="presentableId" value="Default" />
       <updated>1612359180101</updated>
       <workItem from="1612359181654" duration="2219000" />
-      <workItem from="1612361541996" duration="3339000" />
+      <workItem from="1612361541996" duration="4252000" />
+      <workItem from="1612401276177" duration="120000" />
+      <workItem from="1612402597829" duration="5390000" />
+      <workItem from="1612447187589" duration="1931000" />
+      <workItem from="1612485753663" duration="1659000" />
+      <workItem from="1612623228616" duration="200000" />
+      <workItem from="1612746234864" duration="546000" />
+      <workItem from="1612746796423" duration="32000" />
+      <workItem from="1612746844819" duration="10429000" />
+      <workItem from="1612796667460" duration="603000" />
     </task>
     <servers />
   </component>
@@ -49,5 +83,17 @@
   </component>
   <component name="UnknownFeatures">
     <option featureType="com.intellij.fileTypeFactory" implementationName="*.g4" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="oldMeFiltersMigrated" value="true" />
   </component>
 </project>

@@ -1,13 +1,18 @@
+/**
+ * 用来记录一个declarator相关的情况，比如每一级的指针是不是常数，以及数组一共有多少维
+ * */
 function VariableDeclarator(){
     this.Identifier = undefined;
-    this.ArraySize = [];
-    this.ConstantPointer = []
+    this.ArraySize = 0;
+    this.ConstantPointer = [];
+    this.Type = "variable";
     return this;
 }
 
 VariableDeclarator.prototype.Identifier = undefined;//主要用来跟踪这个declarator的名字
-VariableDeclarator.prototype.ArraySize = [];//用来跟踪数组的大小
+VariableDeclarator.prototype.ArraySize = 0;//用来跟踪数组的大小
 VariableDeclarator.prototype.ConstantPointer = [];//用来跟踪每一级的指针是不是常量，如果是的话就是一个true否则是false
+VariableDeclarator.prototype.Type = "variable";//用来记录类型，包括variable,array,function,typedef
 
 /**
  * 给当前正在被声明的对象添加一级指针

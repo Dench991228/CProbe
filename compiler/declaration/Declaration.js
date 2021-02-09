@@ -1,22 +1,22 @@
 /*用来关注声明的时候的共性，比如各种类型什么的*/
-function VariableDeclaration(){
+function Declaration(){
     return this;
 }
 
-VariableDeclaration.prototype.IsStatic = false;//记录其存储方式
+Declaration.prototype.IsStatic = false;//记录其存储方式
 /*类型相关*/
-VariableDeclaration.prototype.Type = undefined;//描述这个标识符的类型，比如基本类型，struct，enumeration，typedef
-VariableDeclaration.prototype.Signed = undefined;
-VariableDeclaration.prototype.IsConstant = false;//是不是常量，用来对付const
+Declaration.prototype.Type = undefined;//描述这个标识符的类型，比如基本类型，struct，enumeration，typedef
+Declaration.prototype.Signed = undefined;
+Declaration.prototype.IsConstant = false;//是不是常量，用来对付const
 /*被声明的东西*/
-VariableDeclaration.prototype.CurrentDeclarator = undefined;//记录当前正在被声明的Declarator
-VariableDeclaration.prototype.ExportEntry = function(){//把当前的声明导出成一个符号表表项
+Declaration.prototype.CurrentDeclarator = undefined;//记录当前正在被声明的Declarator
+Declaration.prototype.ExportEntry = function(){//把当前的声明导出成一个符号表表项
     return this;
 }
 /**
  * 增加一个storage specifier，目前只考虑static，先不考虑register，auto，extern之类的
  * */
-VariableDeclaration.prototype.addStorageSpecifier = function(specifier){
+Declaration.prototype.addStorageSpecifier = function(specifier){
     if(specifier.getText()==="static"){
         this.IsStatic = true;
     }
@@ -26,7 +26,7 @@ VariableDeclaration.prototype.addStorageSpecifier = function(specifier){
  * 之后要考虑typeName，struct，enum之类的
  * @param specifier 输入的storage specifier
  * */
-VariableDeclaration.prototype.addTypeSpecifier = function(specifier){
+Declaration.prototype.addTypeSpecifier = function(specifier){
     if(this.Signed!==undefined&&specifier.getText()==="unsigned"){
         if(this.Signed===true){
             throw new Error("unsigned is conflict with signed");
@@ -53,13 +53,13 @@ VariableDeclaration.prototype.addTypeSpecifier = function(specifier){
         }
     }
 }
-VariableDeclaration.prototype.addTypeQualifier = function(specifier){
+Declaration.prototype.addTypeQualifier = function(specifier){
     if(this.IsConstant===false){
         this.IsConstant = true
     }
 }
 
-VariableDeclaration.prototype.toString = function(ctx){
+Declaration.prototype.toString = function(ctx){
     let isStatic = "static: "+ this.IsStatic;
     let constant = "constant: "+this.IsConstant;
     let signed = "signed: "+(this.Signed===undefined?"signed":this.Signed);
@@ -67,4 +67,4 @@ VariableDeclaration.prototype.toString = function(ctx){
     return isStatic+"<br>"+constant+"<br>"+signed+"<br>"+type+"<br>";
 }
 
-exports.VariableDeclaration = VariableDeclaration
+exports.VariableDeclaration = Declaration
