@@ -10827,68 +10827,483 @@ const CListener = require('./CListener').CListener
 var VariableDeclaration = require("./declaration/Declaration").VariableDeclaration
 var VariableDeclarator = require("./declaration/VariableDeclarator").VariableDeclarator
 var Dict = require("./common/Contexts").ContextDict
+var Tokens = require("./common/CToken").Tokens
 
 // This class defines a complete listener for a parse tree produced by CParser.
-function CustomListener() {
+function MyCustomListener() {
     CListener.call(this)
     return this;
 }
-/*与编译过程相关的状态信息*/
-CustomListener.prototype.CurrentDeclaration = new VariableDeclaration();
-CustomListener.prototype = Object.create(CListener.prototype);
-CustomListener.prototype.constructor = CListener;
 
-CustomListener.prototype.enterPrimaryExpression = function(ctx){
-    document.getElementById("output").innerHTML+=ctx.getText();
-}
-CustomListener.prototype.exitIterationStatement = function(ctx){
-    document.getElementById("output").innerHTML += ctx.getText();
-}
-/**
- * 进入新的声明对象的时候需要创建一个新的被声明对象
- * */
-CustomListener.prototype.enterInitDeclarator = function(ctx){
-    this.CurrentDeclaration.CurrentDeclarator = new VariableDeclarator();
-}
-/**
- * 离开的时候，将被声明对象的信息打印出来，我瞅瞅
- * */
-CustomListener.prototype.exitInitDeclarator = function(ctx){
-    document.getElementById("output").innerHTML+=this.CurrentDeclaration.CurrentDeclarator.toString()+"<br>";
-}
-/**
- * 进入新的声明语句之后，需要创建新的声明状态
- * */
-CustomListener.prototype.enterDeclaration = function(ctx){
+MyCustomListener.prototype = Object.create(CListener.prototype);
+MyCustomListener.prototype.constructor = MyCustomListener;
+MyCustomListener.prototype.CurrentDeclaration = new VariableDeclaration();
+
+
+// Enter a parse tree produced by CParser#primaryExpression.
+MyCustomListener.prototype.enterPrimaryExpression = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#primaryExpression.
+MyCustomListener.prototype.exitPrimaryExpression = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#postfixExpression.
+MyCustomListener.prototype.enterPostfixExpression = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#postfixExpression.
+MyCustomListener.prototype.exitPostfixExpression = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#argumentExpressionList.
+MyCustomListener.prototype.enterArgumentExpressionList = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#argumentExpressionList.
+MyCustomListener.prototype.exitArgumentExpressionList = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#unaryExpression.
+MyCustomListener.prototype.enterUnaryExpression = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#unaryExpression.
+MyCustomListener.prototype.exitUnaryExpression = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#unaryOperator.
+MyCustomListener.prototype.enterUnaryOperator = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#unaryOperator.
+MyCustomListener.prototype.exitUnaryOperator = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#castExpression.
+MyCustomListener.prototype.enterCastExpression = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#castExpression.
+MyCustomListener.prototype.exitCastExpression = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#multiplicativeExpression.
+MyCustomListener.prototype.enterMultiplicativeExpression = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#multiplicativeExpression.
+MyCustomListener.prototype.exitMultiplicativeExpression = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#additiveExpression.
+MyCustomListener.prototype.enterAdditiveExpression = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#additiveExpression.
+MyCustomListener.prototype.exitAdditiveExpression = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#shiftExpression.
+MyCustomListener.prototype.enterShiftExpression = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#shiftExpression.
+MyCustomListener.prototype.exitShiftExpression = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#relationalExpression.
+MyCustomListener.prototype.enterRelationalExpression = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#relationalExpression.
+MyCustomListener.prototype.exitRelationalExpression = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#equalityExpression.
+MyCustomListener.prototype.enterEqualityExpression = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#equalityExpression.
+MyCustomListener.prototype.exitEqualityExpression = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#andExpression.
+MyCustomListener.prototype.enterAndExpression = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#andExpression.
+MyCustomListener.prototype.exitAndExpression = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#exclusiveOrExpression.
+MyCustomListener.prototype.enterExclusiveOrExpression = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#exclusiveOrExpression.
+MyCustomListener.prototype.exitExclusiveOrExpression = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#inclusiveOrExpression.
+MyCustomListener.prototype.enterInclusiveOrExpression = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#inclusiveOrExpression.
+MyCustomListener.prototype.exitInclusiveOrExpression = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#logicalAndExpression.
+MyCustomListener.prototype.enterLogicalAndExpression = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#logicalAndExpression.
+MyCustomListener.prototype.exitLogicalAndExpression = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#logicalOrExpression.
+MyCustomListener.prototype.enterLogicalOrExpression = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#logicalOrExpression.
+MyCustomListener.prototype.exitLogicalOrExpression = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#conditionalExpression.
+MyCustomListener.prototype.enterConditionalExpression = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#conditionalExpression.
+MyCustomListener.prototype.exitConditionalExpression = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#assignmentExpression.
+MyCustomListener.prototype.enterAssignmentExpression = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#assignmentExpression.
+MyCustomListener.prototype.exitAssignmentExpression = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#assignmentOperator.
+MyCustomListener.prototype.enterAssignmentOperator = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#assignmentOperator.
+MyCustomListener.prototype.exitAssignmentOperator = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#expression.
+MyCustomListener.prototype.enterExpression = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#expression.
+MyCustomListener.prototype.exitExpression = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#constantExpression.
+MyCustomListener.prototype.enterConstantExpression = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#constantExpression.
+MyCustomListener.prototype.exitConstantExpression = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#declaration.
+MyCustomListener.prototype.enterDeclaration = function(ctx) {
     this.CurrentDeclaration = new VariableDeclaration();
-}
-/*收到了一个BasicTypeSpecifier*/
-CustomListener.prototype.exitBasicTypeSpecifier = function(ctx){
-    this.CurrentDeclaration.addTypeSpecifier(ctx);
-}
-/*收到了一个TypeQualifier*/
-CustomListener.prototype.exitTypeQualifier = function(ctx){
-    this.CurrentDeclaration.addTypeQualifier(ctx);
-}
-/*收到了一个Storage Specifier*/
-CustomListener.prototype.exitStorageClassSpecifier = function(ctx){
-    this.CurrentDeclaration.addStorageSpecifier(ctx);
-}
-/*离开了Declaration，展示相关信息*/
-CustomListener.prototype.exitDeclaration = function(ctx){
+};
+
+// Exit a parse tree produced by CParser#declaration.
+MyCustomListener.prototype.exitDeclaration = function(ctx) {
     document.getElementById("output").innerHTML+= (this.CurrentDeclaration.toString()+"<br>");
     let count_child = ctx.getChildCount();
-    console.log("exiting declaration");
-    for(let i = 0;i < count_child; i++){
-        if(ctx.getChild(i).ruleIndex!==undefined){
-            console.log(ctx.getChild(i).getText()+":"+ctx.getChild(i).ruleIndex)
-        }else{
-            console.log(ctx.getChild(i).getText()+":"+ctx.getChild(i).symbol[3])
-        }
+};
+
+
+// Enter a parse tree produced by CParser#declarationSpecifiers.
+MyCustomListener.prototype.enterDeclarationSpecifiers = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#declarationSpecifiers.
+MyCustomListener.prototype.exitDeclarationSpecifiers = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#declarationSpecifiers2.
+MyCustomListener.prototype.enterDeclarationSpecifiers2 = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#declarationSpecifiers2.
+MyCustomListener.prototype.exitDeclarationSpecifiers2 = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#declarationSpecifier.
+MyCustomListener.prototype.enterDeclarationSpecifier = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#declarationSpecifier.
+MyCustomListener.prototype.exitDeclarationSpecifier = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#initDeclaratorList.
+MyCustomListener.prototype.enterInitDeclaratorList = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#initDeclaratorList.
+MyCustomListener.prototype.exitInitDeclaratorList = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#initDeclarator.
+MyCustomListener.prototype.enterInitDeclarator = function(ctx) {
+    this.CurrentDeclaration.CurrentDeclarator = new VariableDeclarator();
+};
+
+// Exit a parse tree produced by CParser#initDeclarator.
+MyCustomListener.prototype.exitInitDeclarator = function(ctx) {
+    document.getElementById("output").innerHTML+=this.CurrentDeclaration.CurrentDeclarator.toString()+"<br>";
+};
+
+
+// Enter a parse tree produced by CParser#storageClassSpecifier.
+MyCustomListener.prototype.enterStorageClassSpecifier = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#storageClassSpecifier.
+MyCustomListener.prototype.exitStorageClassSpecifier = function(ctx) {
+    this.CurrentDeclaration.addStorageSpecifier(ctx);
+};
+
+
+// Enter a parse tree produced by CParser#BasicTypeSpecifier.
+MyCustomListener.prototype.enterBasicTypeSpecifier = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#BasicTypeSpecifier.
+MyCustomListener.prototype.exitBasicTypeSpecifier = function(ctx) {
+    this.CurrentDeclaration.addTypeSpecifier(ctx);
+};
+
+
+// Enter a parse tree produced by CParser#StructUnionSpecifier.
+MyCustomListener.prototype.enterStructUnionSpecifier = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#StructUnionSpecifier.
+MyCustomListener.prototype.exitStructUnionSpecifier = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#EnumerationSpecifier.
+MyCustomListener.prototype.enterEnumerationSpecifier = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#EnumerationSpecifier.
+MyCustomListener.prototype.exitEnumerationSpecifier = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#TypeDefSpecifier.
+MyCustomListener.prototype.enterTypeDefSpecifier = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#TypeDefSpecifier.
+MyCustomListener.prototype.exitTypeDefSpecifier = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#structOrUnionSpecifier.
+MyCustomListener.prototype.enterStructOrUnionSpecifier = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#structOrUnionSpecifier.
+MyCustomListener.prototype.exitStructOrUnionSpecifier = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#structOrUnion.
+MyCustomListener.prototype.enterStructOrUnion = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#structOrUnion.
+MyCustomListener.prototype.exitStructOrUnion = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#structDeclarationList.
+MyCustomListener.prototype.enterStructDeclarationList = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#structDeclarationList.
+MyCustomListener.prototype.exitStructDeclarationList = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#structDeclaration.
+MyCustomListener.prototype.enterStructDeclaration = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#structDeclaration.
+MyCustomListener.prototype.exitStructDeclaration = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#specifierQualifierList.
+MyCustomListener.prototype.enterSpecifierQualifierList = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#specifierQualifierList.
+MyCustomListener.prototype.exitSpecifierQualifierList = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#structDeclaratorList.
+MyCustomListener.prototype.enterStructDeclaratorList = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#structDeclaratorList.
+MyCustomListener.prototype.exitStructDeclaratorList = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#structDeclarator.
+MyCustomListener.prototype.enterStructDeclarator = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#structDeclarator.
+MyCustomListener.prototype.exitStructDeclarator = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#enumSpecifier.
+MyCustomListener.prototype.enterEnumSpecifier = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#enumSpecifier.
+MyCustomListener.prototype.exitEnumSpecifier = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#enumeratorList.
+MyCustomListener.prototype.enterEnumeratorList = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#enumeratorList.
+MyCustomListener.prototype.exitEnumeratorList = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#enumerator.
+MyCustomListener.prototype.enterEnumerator = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#enumerator.
+MyCustomListener.prototype.exitEnumerator = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#enumerationConstant.
+MyCustomListener.prototype.enterEnumerationConstant = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#enumerationConstant.
+MyCustomListener.prototype.exitEnumerationConstant = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#atomicTypeSpecifier.
+MyCustomListener.prototype.enterAtomicTypeSpecifier = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#atomicTypeSpecifier.
+MyCustomListener.prototype.exitAtomicTypeSpecifier = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#typeQualifier.
+MyCustomListener.prototype.enterTypeQualifier = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#typeQualifier.
+MyCustomListener.prototype.exitTypeQualifier = function(ctx) {
+    this.CurrentDeclaration.addTypeQualifier(ctx);
+};
+
+
+// Enter a parse tree produced by CParser#functionSpecifier.
+MyCustomListener.prototype.enterFunctionSpecifier = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#functionSpecifier.
+MyCustomListener.prototype.exitFunctionSpecifier = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#alignmentSpecifier.
+MyCustomListener.prototype.enterAlignmentSpecifier = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#alignmentSpecifier.
+MyCustomListener.prototype.exitAlignmentSpecifier = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#declarator.
+MyCustomListener.prototype.enterDeclarator = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#declarator.
+MyCustomListener.prototype.exitDeclarator = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#directDeclarator.
+MyCustomListener.prototype.enterDirectDeclarator = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#directDeclarator.
+MyCustomListener.prototype.exitDirectDeclarator = function(ctx) {
+    let length = ctx.getChildCount();
+    console.log("exit direct declarator: "+ctx.getText());
+    if(length===1){//产生了一个标识符的情况
+        this.CurrentDeclaration.CurrentDeclarator.Identifier = ctx.getText();
+    }else if(ctx.getChild(length-1).symbol.type===Tokens['RightBracket']){//声明数组的情况，这种情况下需要增加数组的维度
+        this.CurrentDeclaration.CurrentDeclarator.ArraySize += 1;
+    }else if(ctx.getChild(length-1).symbol.type===Tokens['RightParen']){//声明函数的情况
+
     }
-}
-/*研究一下离开指针的时候指针是个什么状态*/
-CustomListener.prototype.exitPointer = function(ctx){
+};
+
+
+// Enter a parse tree produced by CParser#pointer.
+MyCustomListener.prototype.enterPointer = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#pointer.
+MyCustomListener.prototype.exitPointer = function(ctx) {
     let count = ctx.getChildCount();
     if(ctx.getChild(count-1).ruleIndex===Dict['RULE_typeQualifierList']){//只要最后一个是QualifierList，就要考虑是不是常量指针
         if(ctx.getChild(count-1).getText().search("const")!==-1){//包含const
@@ -10899,18 +11314,295 @@ CustomListener.prototype.exitPointer = function(ctx){
     }else{//最后连个QualifierList都没有，显然是非常数指针
         this.CurrentDeclaration.CurrentDeclarator.addPointer(false);
     }
-}
+};
 
-CustomListener.prototype.enterPointer = function(ctx){
-    console.log("enter pointer: "+ctx.getText());
-}
 
-exports.CustomListener = CustomListener;
-},{"./CListener":2,"./antlr4/index":47,"./common/Contexts":53,"./declaration/Declaration":54,"./declaration/VariableDeclarator":55}],5:[function(require,module,exports){
+// Enter a parse tree produced by CParser#typeQualifierList.
+MyCustomListener.prototype.enterTypeQualifierList = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#typeQualifierList.
+MyCustomListener.prototype.exitTypeQualifierList = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#parameterTypeList.
+MyCustomListener.prototype.enterParameterTypeList = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#parameterTypeList.
+MyCustomListener.prototype.exitParameterTypeList = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#parameterList.
+MyCustomListener.prototype.enterParameterList = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#parameterList.
+MyCustomListener.prototype.exitParameterList = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#parameterDeclaration.
+MyCustomListener.prototype.enterParameterDeclaration = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#parameterDeclaration.
+MyCustomListener.prototype.exitParameterDeclaration = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#identifierList.
+MyCustomListener.prototype.enterIdentifierList = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#identifierList.
+MyCustomListener.prototype.exitIdentifierList = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#typeName.
+MyCustomListener.prototype.enterTypeName = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#typeName.
+MyCustomListener.prototype.exitTypeName = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#abstractDeclarator.
+MyCustomListener.prototype.enterAbstractDeclarator = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#abstractDeclarator.
+MyCustomListener.prototype.exitAbstractDeclarator = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#directAbstractDeclarator.
+MyCustomListener.prototype.enterDirectAbstractDeclarator = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#directAbstractDeclarator.
+MyCustomListener.prototype.exitDirectAbstractDeclarator = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#typedefName.
+MyCustomListener.prototype.enterTypedefName = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#typedefName.
+MyCustomListener.prototype.exitTypedefName = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#initializer.
+MyCustomListener.prototype.enterInitializer = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#initializer.
+MyCustomListener.prototype.exitInitializer = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#initializerList.
+MyCustomListener.prototype.enterInitializerList = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#initializerList.
+MyCustomListener.prototype.exitInitializerList = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#designation.
+MyCustomListener.prototype.enterDesignation = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#designation.
+MyCustomListener.prototype.exitDesignation = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#designatorList.
+MyCustomListener.prototype.enterDesignatorList = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#designatorList.
+MyCustomListener.prototype.exitDesignatorList = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#designator.
+MyCustomListener.prototype.enterDesignator = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#designator.
+MyCustomListener.prototype.exitDesignator = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#statement.
+MyCustomListener.prototype.enterStatement = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#statement.
+MyCustomListener.prototype.exitStatement = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#labeledStatement.
+MyCustomListener.prototype.enterLabeledStatement = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#labeledStatement.
+MyCustomListener.prototype.exitLabeledStatement = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#compoundStatement.
+MyCustomListener.prototype.enterCompoundStatement = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#compoundStatement.
+MyCustomListener.prototype.exitCompoundStatement = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#blockItemList.
+MyCustomListener.prototype.enterBlockItemList = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#blockItemList.
+MyCustomListener.prototype.exitBlockItemList = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#blockItem.
+MyCustomListener.prototype.enterBlockItem = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#blockItem.
+MyCustomListener.prototype.exitBlockItem = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#expressionStatement.
+MyCustomListener.prototype.enterExpressionStatement = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#expressionStatement.
+MyCustomListener.prototype.exitExpressionStatement = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#selectionStatement.
+MyCustomListener.prototype.enterSelectionStatement = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#selectionStatement.
+MyCustomListener.prototype.exitSelectionStatement = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#iterationStatement.
+MyCustomListener.prototype.enterIterationStatement = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#iterationStatement.
+MyCustomListener.prototype.exitIterationStatement = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#forCondition.
+MyCustomListener.prototype.enterForCondition = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#forCondition.
+MyCustomListener.prototype.exitForCondition = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#forDeclaration.
+MyCustomListener.prototype.enterForDeclaration = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#forDeclaration.
+MyCustomListener.prototype.exitForDeclaration = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#forExpression.
+MyCustomListener.prototype.enterForExpression = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#forExpression.
+MyCustomListener.prototype.exitForExpression = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#jumpStatement.
+MyCustomListener.prototype.enterJumpStatement = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#jumpStatement.
+MyCustomListener.prototype.exitJumpStatement = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#compilationUnit.
+MyCustomListener.prototype.enterCompilationUnit = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#compilationUnit.
+MyCustomListener.prototype.exitCompilationUnit = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#translationUnit.
+MyCustomListener.prototype.enterTranslationUnit = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#translationUnit.
+MyCustomListener.prototype.exitTranslationUnit = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#externalDeclaration.
+MyCustomListener.prototype.enterExternalDeclaration = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#externalDeclaration.
+MyCustomListener.prototype.exitExternalDeclaration = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#functionDefinition.
+MyCustomListener.prototype.enterFunctionDefinition = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#functionDefinition.
+MyCustomListener.prototype.exitFunctionDefinition = function(ctx) {
+};
+
+
+// Enter a parse tree produced by CParser#declarationList.
+MyCustomListener.prototype.enterDeclarationList = function(ctx) {
+};
+
+// Exit a parse tree produced by CParser#declarationList.
+MyCustomListener.prototype.exitDeclarationList = function(ctx) {
+};
+
+
+
+exports.MyCustomListener = MyCustomListener;
+},{"./CListener":2,"./antlr4/index":47,"./common/CToken":53,"./common/Contexts":54,"./declaration/Declaration":55,"./declaration/VariableDeclarator":56}],5:[function(require,module,exports){
 const antlr4 = require("./antlr4/index")
 const CustomLexer = require("./CLexer.js")
 const CustomParser = require("./CParser.js")
-const CustomListener = require("./CustomListener.js").CustomListener
+const MyCustomListener = require("./MyCustomListener.js").MyCustomListener
 
 function executeParse() {
     document.getElementById("output").innerHTML = "";
@@ -10922,11 +11614,11 @@ function executeParse() {
     var parser = new CustomParser.CParser(tokens);
     parser.buildParseTrees = true;
 
-    antlr4.tree.ParseTreeWalker.DEFAULT.walk(new CustomListener(), parser.translationUnit())
+    antlr4.tree.ParseTreeWalker.DEFAULT.walk(new MyCustomListener(), parser.translationUnit())
 }
 
 window.executeParse = executeParse;
-},{"./CLexer.js":1,"./CParser.js":3,"./CustomListener.js":4,"./antlr4/index":47}],6:[function(require,module,exports){
+},{"./CLexer.js":1,"./CParser.js":3,"./MyCustomListener.js":4,"./antlr4/index":47}],6:[function(require,module,exports){
 //
 /* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
@@ -11376,7 +12068,7 @@ var CharStreams = {
 
 exports.CharStreams = CharStreams;
 
-},{"./InputStream":11,"fs":56}],8:[function(require,module,exports){
+},{"./InputStream":11,"fs":57}],8:[function(require,module,exports){
 //
 /* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
@@ -11580,7 +12272,7 @@ FileStream.prototype.constructor = FileStream;
 
 exports.FileStream = FileStream;
 
-},{"./InputStream":11,"fs":56}],11:[function(require,module,exports){
+},{"./InputStream":11,"fs":57}],11:[function(require,module,exports){
 //
 /* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
@@ -23087,6 +23779,112 @@ exports.ParseTreeVisitor = Tree.ParseTreeVisitor;
 exports.ParseTreeWalker = Tree.ParseTreeWalker;
 
 },{"./Tree":50,"./Trees":51}],53:[function(require,module,exports){
+var antlr4 = require("../antlr4/index")
+Tokens = {};
+Tokens.EOF = antlr4.Token.EOF;
+Tokens.T__0 = 1;
+Tokens.T__1 = 2;
+Tokens.T__2 = 3;
+Tokens.T__3 = 4;
+Tokens.T__4 = 5;
+Tokens.T__5 = 6;
+Tokens.Auto = 7;
+Tokens.Break = 8;
+Tokens.Case = 9;
+Tokens.Char = 10;
+Tokens.Const = 11;
+Tokens.Continue = 12;
+Tokens.Default = 13;
+Tokens.Do = 14;
+Tokens.Double = 15;
+Tokens.Else = 16;
+Tokens.Enum = 17;
+Tokens.Extern = 18;
+Tokens.Float = 19;
+Tokens.For = 20;
+Tokens.Goto = 21;
+Tokens.If = 22;
+Tokens.Inline = 23;
+Tokens.Int = 24;
+Tokens.Long = 25;
+Tokens.Register = 26;
+Tokens.Restrict = 27;
+Tokens.Return = 28;
+Tokens.Short = 29;
+Tokens.Signed = 30;
+Tokens.Sizeof = 31;
+Tokens.Static = 32;
+Tokens.Struct = 33;
+Tokens.Switch = 34;
+Tokens.Typedef = 35;
+Tokens.Union = 36;
+Tokens.Unsigned = 37;
+Tokens.Void = 38;
+Tokens.Volatile = 39;
+Tokens.While = 40;
+Tokens.LeftParen = 41;
+Tokens.RightParen = 42;
+Tokens.LeftBracket = 43;
+Tokens.RightBracket = 44;
+Tokens.LeftBrace = 45;
+Tokens.RightBrace = 46;
+Tokens.Less = 47;
+Tokens.LessEqual = 48;
+Tokens.Greater = 49;
+Tokens.GreaterEqual = 50;
+Tokens.LeftShift = 51;
+Tokens.RightShift = 52;
+Tokens.Plus = 53;
+Tokens.PlusPlus = 54;
+Tokens.Minus = 55;
+Tokens.MinusMinus = 56;
+Tokens.Star = 57;
+Tokens.Div = 58;
+Tokens.Mod = 59;
+Tokens.And = 60;
+Tokens.Or = 61;
+Tokens.AndAnd = 62;
+Tokens.OrOr = 63;
+Tokens.Caret = 64;
+Tokens.Not = 65;
+Tokens.Tilde = 66;
+Tokens.Question = 67;
+Tokens.Colon = 68;
+Tokens.Semi = 69;
+Tokens.Comma = 70;
+Tokens.Assign = 71;
+Tokens.StarAssign = 72;
+Tokens.DivAssign = 73;
+Tokens.ModAssign = 74;
+Tokens.PlusAssign = 75;
+Tokens.MinusAssign = 76;
+Tokens.LeftShiftAssign = 77;
+Tokens.RightShiftAssign = 78;
+Tokens.AndAssign = 79;
+Tokens.XorAssign = 80;
+Tokens.OrAssign = 81;
+Tokens.Equal = 82;
+Tokens.NotEqual = 83;
+Tokens.Arrow = 84;
+Tokens.Dot = 85;
+Tokens.Ellipsis = 86;
+Tokens.Identifier = 87;
+Tokens.Constant = 88;
+Tokens.DigitSequence = 89;
+Tokens.StringLiteral = 90;
+Tokens.ComplexDefine = 91;
+Tokens.IncludeDirective = 92;
+Tokens.AsmBlock = 93;
+Tokens.LineAfterPreprocessing = 94;
+Tokens.LineDirective = 95;
+Tokens.PragmaDirective = 96;
+Tokens.Whitespace = 97;
+Tokens.Newline = 98;
+Tokens.BlockComment = 99;
+Tokens.LineComment = 100;
+
+exports.Tokens = Tokens;
+},{"../antlr4/index":47}],54:[function(require,module,exports){
 var Contexts = {};
 
 Contexts.RULE_primaryExpression = 0;
@@ -23169,7 +23967,7 @@ Contexts.RULE_functionDefinition = 76;
 Contexts.RULE_declarationList = 77;
 
 exports.ContextDict = Contexts;
-},{}],54:[function(require,module,exports){
+},{}],55:[function(require,module,exports){
 /*用来关注声明的时候的共性，比如各种类型什么的*/
 function Declaration(){
     return this;
@@ -23240,7 +24038,7 @@ Declaration.prototype.toString = function(ctx){
 }
 
 exports.VariableDeclaration = Declaration
-},{}],55:[function(require,module,exports){
+},{}],56:[function(require,module,exports){
 /**
  * 用来记录一个declarator相关的情况，比如每一级的指针是不是常数，以及数组一共有多少维
  * */
@@ -23273,6 +24071,6 @@ VariableDeclarator.prototype.toString = function(){
 }
 
 exports.VariableDeclarator = VariableDeclarator;
-},{}],56:[function(require,module,exports){
+},{}],57:[function(require,module,exports){
 
 },{}]},{},[5]);

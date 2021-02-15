@@ -1,7 +1,7 @@
 const antlr4 = require("./antlr4/index")
 const CustomLexer = require("./CLexer.js")
 const CustomParser = require("./CParser.js")
-const CustomListener = require("./CustomListener.js").CustomListener
+const MyCustomListener = require("./MyCustomListener.js").MyCustomListener
 
 function executeParse() {
     document.getElementById("output").innerHTML = "";
@@ -13,7 +13,7 @@ function executeParse() {
     var parser = new CustomParser.CParser(tokens);
     parser.buildParseTrees = true;
 
-    antlr4.tree.ParseTreeWalker.DEFAULT.walk(new CustomListener(), parser.translationUnit())
+    antlr4.tree.ParseTreeWalker.DEFAULT.walk(new MyCustomListener(), parser.translationUnit())
 }
 
 window.executeParse = executeParse;
