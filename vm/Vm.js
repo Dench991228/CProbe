@@ -173,9 +173,13 @@ function run(){
             case "store.64":
                 storeNum(64)
                 break;
-            case "alloc":  break;
-            case "free":  break;
-            case "stackalloc":  sp-=8; break;
+            case "alloc":  
+                break;
+            case "free":  
+                break;
+            case "stackalloc":  
+                sp-=8; 
+                break;
             case "add.i":  
                 break;
             case "sub.i":  
@@ -194,20 +198,46 @@ function run(){
                 break;
             case "div.u":  
                 break;
-            case "shl":  break;
-            case "shr":  break;
-            case "and":  break;
-            case "or":  break;
-            case "xor":  break;
-            case "not":  break;
-            case "cmp.i":  break;
-            case "cmp.u":  break;
-            case "cmp.f":  break;
-            case "neg.i":  break;
-            case "neg.f":  break;
-            case "itof":  break;
-            case "ftoi":  break;
-            case "shrl":  break;
+            case "shl":  
+                break;
+            case "shr":  
+                break;
+            case "and":  
+                break;
+            case "or":  
+                break;
+            case "xor":  
+                break;
+            case "not":  
+                break;
+            case "cmp.i":  
+                leftNum = popNum()
+                rightNum = popNum()
+                if (leftNum > rightNum){
+                    pushNum(1)
+                }
+                else{
+                    pushNum(0)
+                }
+                break;
+            case "cmp.u":   
+                leftNum = popNum()
+                rightNum = popNum()
+                break;
+            case "cmp.f":  
+                leftNum = popNum()
+                rightNum = popNum()
+                break;
+            case "neg.i":  
+                break;
+            case "neg.f":  
+                break;
+            case "itof":  
+                break;
+            case "ftoi":  
+                break;
+            case "shrl":  
+                break;
             case "set.lt":
                 temp = popNum()
                 if(temp<0)
