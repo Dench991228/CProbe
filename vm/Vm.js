@@ -135,7 +135,10 @@ function run(){
                 pushNum(temp)
                 pushNum(temp)
                 break;
-            case "loca":  break;
+            case "loca":  
+                sp += optnum 
+                
+                break;
             case "arga":  break;
             case "globa":  break;
             case "load.8":
