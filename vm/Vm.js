@@ -37,7 +37,8 @@ var cbp = 0x00000000;//代码段基指针
 var gbp = 0x001fffff;//全局变量基指针
 var hbp = 0x003fffff;//堆基指针
 var sbp = 0x00ffffff;//栈基指针
-
+var lop = 0;//loc指针
+var arg = 0;//arg指针
 
 /**
  * 进栈原子操作（只操作一个字节）
@@ -135,12 +136,19 @@ function run(){
                 pushNum(temp)
                 pushNum(temp)
                 break;
-            case "loca":  
+            case "loca": 
+                sp = lop 
                 sp += optnum 
-                
+                pushNum(sbp-sp)
                 break;
-            case "arga":  break;
-            case "globa":  break;
+            case "arga":  
+                sp = arg
+                sp += optnum
+                pushNum(sbp - sp)
+                break;
+            case "globa":  
+                pushNum(gbp + bp)
+                break;
             case "load.8":
                 loadNum(8)
                 break;
@@ -168,15 +176,24 @@ function run(){
             case "alloc":  break;
             case "free":  break;
             case "stackalloc":  sp-=8; break;
-            case "add.i":  break;
-            case "sub.i":  break;
-            case "mul.i":  break;
-            case "div.i":  break;
-            case "add.f":  break;
-            case "sub.f":  break;
-            case "mul.f":  break;
-            case "div.f":  break;
-            case "div.u":  break;
+            case "add.i":  
+                break;
+            case "sub.i":  
+                break;
+            case "mul.i":  
+                break;
+            case "div.i":  
+                break;
+            case "add.f":  
+                break;
+            case "sub.f":  
+                break;
+            case "mul.f":  
+                break;
+            case "div.f":  
+                break;
+            case "div.u":  
+                break;
             case "shl":  break;
             case "shr":  break;
             case "and":  break;
