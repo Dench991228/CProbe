@@ -25,7 +25,7 @@
  * --->     地址从小到大     --->
  */
 var code = new Array();//代码段
-var ip = 1;//IP寄存器
+var ip = -1;//IP寄存器
 var globalSpace = new Array();//全局变量空间
 var stack = new Array();//栈空间
 var heap = new Array();//堆空间
@@ -103,6 +103,8 @@ function storeAddress(address, val){}
  * 指令执行模块
  */
 function run(){
+    // console.log(ip)
+    // console.log(cp)
     if(ip >= cp){ //此时IP寄存器中的目标指令尚未解释，需等待指令
         return;
     }
@@ -114,9 +116,12 @@ function run(){
          * 有操作数指令
          * var instruct = {opt:"push",num:100}
          */
-        var instruction =  code[ip];//获取此时的指令对象
+        var instruction =  code[ip+1];//获取此时的指令对象
+        // console.log(instruction)
         var opt = instruction.opt;//指令
         var optnum = instruction.num;//指令操作数
+        // console.log(opt)
+        // console.log(optnum)
         let temp, stemp //临时变量
         switch (opt){
             case "nop":  break;

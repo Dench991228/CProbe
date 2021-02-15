@@ -25,16 +25,20 @@
 </html>
 <script type="text/javascript" src="Vm.js"></script>
 <script language=javascript>
-  pushStack(0x10);
+  /*pushStack(0x10);
   pushStack(0x20);
   pushStack(0x30);
   pushStack(0x40);
   console.log(popStack());
   console.log(popStack());
   console.log(popStack());
-  console.log(popStack());
-  getNewCode(0x10);
-  console.log(globalSpace[gp]);
+  console.log(popStack()); 
+  getNewCode(0x10); 
+  console.log(globalSpace[gp]);*/
+  console.log(stack);
+  putNewCode({opt:"push",num:100})
+  console.log(stack);
+  putNewCode({opt:"pop"})
 </script>
 <style scoped>
 .button-yunxing{
