@@ -282,7 +282,7 @@ MyCustomListener.prototype.enterBasicTypeSpecifier = function(ctx) {
 
 // Exit a parse tree produced by CParser#BasicTypeSpecifier.
 MyCustomListener.prototype.exitBasicTypeSpecifier = function(ctx) {
-    this.CurrentDeclaration.addTypeSpecifier(ctx);
+    this.CurrentDeclaration.addBasicTypeSpecifier(ctx);
 };
 
 
@@ -381,12 +381,27 @@ MyCustomListener.prototype.enterEnumSpecifier = function(ctx) {
 };
 
 // Exit a parse tree produced by CParser#enumSpecifier.
+/**
+ * 遇到一个EnumerationSpecifier，这个时候需要把状态改为声明enum的状态，并且记录相应信息。
+ * */
 MyCustomListener.prototype.exitEnumSpecifier = function(ctx) {
+    this.CurrentDeclaration.Type="enum";
+    if(ctx.getChild(1).symbol.type===Tokens.Identifier){//中间是一个identifier
+        this.CurrentDeclaration.Name = ctx.getChild(1).getText();
+    }else{//匿名enum
+        this.CurrentDeclaration.Name = "anonymous";
+        this.CurrentDeclaration.IsDeclaration = false;
+    }
 };
 
 
 // Enter a parse tree produced by CParser#enumeratorList.
+/**
+ * 进入enumeratorList，所以必定是新声明
+ * TODO 考虑当前符号表中的enum
+ * */
 MyCustomListener.prototype.enterEnumeratorList = function(ctx) {
+    this.CurrentDeclaration.IsDeclaration = true;
 };
 
 // Exit a parse tree produced by CParser#enumeratorList.
@@ -399,7 +414,18 @@ MyCustomListener.prototype.enterEnumerator = function(ctx) {
 };
 
 // Exit a parse tree produced by CParser#enumerator.
+/**
+ * 离开一个enumerator的时候应该初始化相关的identifier，以及判断它有没有被初始化
+ * TODO 需要考虑符号表中有没有这个identifier
+ * TODO 初始化的时候需要有相关的expression的内容
+ * */
 MyCustomListener.prototype.exitEnumerator = function(ctx) {
+    let enumerator = ctx.getChild(0).getText();
+    if(enumerator in this.CurrentDeclaration.Enumerators){
+        throw new Error(enumerator+" has already been declared in this enumerator");
+    }else{
+        this.CurrentDeclaration.Enumerators[enumerator] = ctx.getChildCount() !== 1;
+    }
 };
 
 
