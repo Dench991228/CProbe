@@ -1,4 +1,5 @@
 /*用来关注声明的时候的共性，比如各种类型什么的*/
+var StructDeclaration = require("./StructDeclaration").StructDeclaration
 function Declaration(){
     this.Name = undefined;
     this.IsStatic = false;
@@ -8,6 +9,7 @@ function Declaration(){
     this.Type = undefined;
     this.Enumerators = {};
     this.IsDeclaration = false;
+    this.StructDecl = undefined;
     return this;
 }
 

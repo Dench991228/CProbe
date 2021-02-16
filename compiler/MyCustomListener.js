@@ -314,7 +314,14 @@ MyCustomListener.prototype.exitTypeDefSpecifier = function(ctx) {
 
 
 // Enter a parse tree produced by CParser#structOrUnionSpecifier.
+/**
+ * 开始进行struct的分析，此时需要进入一个新的符号表，并且把当前的declaration变成struct
+ * */
 MyCustomListener.prototype.enterStructOrUnionSpecifier = function(ctx) {
+    if(this.CurrentDeclaration.Type!==undefined){
+        throw new Error("conflicting type in struct");
+    }
+    this.CurrentDeclaration.Type="struct"
 };
 
 // Exit a parse tree produced by CParser#structOrUnionSpecifier.
