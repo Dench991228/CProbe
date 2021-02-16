@@ -36,9 +36,12 @@
   getNewCode(0x10); 
   console.log(globalSpace[gp]);*/
   console.log(stack);
-  putNewCode({opt:"push",num:100})
+  putNewCode({opt:"push",num:0x0123456789abcdef})
   console.log(stack);
-  putNewCode({opt:"pop"})
+  putNewCode({opt:"push",num:0x00ffffff})
+  console.log(stack);
+  putNewCode({opt:"load.64"})
+  console.log(stack);
 </script>
 <style scoped>
 .button-yunxing{

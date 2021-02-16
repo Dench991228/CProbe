@@ -23,7 +23,10 @@
  * 例如 0x12345678
  * | 0x12 | 0x34 | 0x56 | 0x78 |
  * --->     地址从小到大     --->
+ * | 0x12 | 0x34 | 0x56 | 0x78 |栈段例外
+ * --->     地址从大到小     --->
  */
+var id = 0//当前被调用的函数ID
 var code = new Array();//代码段
 var ip = -1;//IP寄存器
 var globalSpace = new Array();//全局变量空间
@@ -33,11 +36,12 @@ var cp = -1;//代码偏移指针
 var gp = -1;//全局变量偏移指针
 var hp = -1;//堆偏移指针
 var sp = -1;//栈偏移指针
+var bp = 0;//帧指针
 var cbp = 0x00000000;//代码段基指针
 var gbp = 0x001fffff;//全局变量基指针
 var hbp = 0x003fffff;//堆基指针
 var sbp = 0x00ffffff;//栈基指针
-var lop = 0;//loc指针
+var loc = 0;//loc指针
 var arg = 0;//arg指针
 
 /**
@@ -77,6 +81,14 @@ function putNewCode(newCode){
  * 绝对逻辑地址访问
  */
 function accessAddress(address){
+    // console.log("add")
+    // console.log(address)
+    // console.log("sbp")
+    // console.log(sbp)
+    // console.log("sp")
+    // console.log(sp)
+    // console.log("-")
+    // console.log(sbp - sp)
     if(address<0x00200000||address>0x00ffffff){
         return "illegal";
     }
@@ -84,11 +96,13 @@ function accessAddress(address){
         return globalSpace[address-gbp];
     }
     else if(address<0x01000000&&address>0x003fffff){
+        // console.log("in!")
         if(address<=(hp+hbp)){//在堆段
             return heap[address];
         }
         else if(address>=(sbp-sp)){//在栈段
-            return stack[address];
+            // console.log(stack[sbp-address])
+            return stack[sbp-address];
         }
         else{
             return "illegal";
@@ -97,7 +111,35 @@ function accessAddress(address){
 }
 
 // 逻辑地址存储，待补充
-function storeAddress(address, val){}
+function storeAddress(address, val){
+    // console.log("add")
+    // console.log(address)
+    // console.log("sbp")
+    // console.log(sbp)
+    // console.log("sp")
+    // console.log(sp)
+    // console.log("-")
+    // console.log(sbp - sp)
+    if (address < 0x00200000 || address > 0x00ffffff) {
+        return "illegal";
+    }
+    else if (address < 0x00400000 && address > 0x001fffff) {//在全局变量段
+        return globalSpace[address - gbp];
+    }
+    else if (address < 0x01000000 && address > 0x003fffff) {
+        // console.log("in!")
+        if (address <= (hp + hbp)) {//在堆段
+            return heap[address];
+        }
+        else if (address >= (sbp - sp)) {//在栈段
+            // console.log(stack[sbp-address])
+            return stack[sbp - address];
+        }
+        else {
+            return "illegal";
+        }
+    }
+}
 
 /**
  * 指令执行模块
@@ -127,9 +169,11 @@ function run(){
             case "nop":  break;
             case "push":
                 pushNum(optnum)
+                ip += 1
                 break;
             case "pop":
                 popNum()
+                ip += 1
                 break;
             case "popn":
                 for(let i=0; i<optnum; i++){
@@ -141,15 +185,13 @@ function run(){
                 pushNum(temp)
                 pushNum(temp)
                 break;
-            case "loca": 
-                sp = lop 
-                sp += optnum 
-                pushNum(sbp-sp)
+            case "loca":  
+                temp = sbp - (loc + optnum) 
+                pushNum(temp)
                 break;
             case "arga":  
-                sp = arg
-                sp += optnum
-                pushNum(sbp - sp)
+                temp = sbp - (arg + optnum)
+                pushNum(temp)
                 break;
             case "globa":  
                 pushNum(gbp + bp)
@@ -183,7 +225,7 @@ function run(){
             case "free":  
                 break;
             case "stackalloc":  
-                sp-=8; 
+                sp+=optnum; 
                 break;
             case "add.i":  
                 break;
@@ -224,6 +266,7 @@ function run(){
                 else{
                     pushNum(0)
                 }
+                ip += 1
                 break;
             case "cmp.u":   
                 leftNum = popNum()
@@ -270,8 +313,41 @@ function run(){
                 if(temp!==0)
                     ip += optnum
                 break;
-            case "call":  break;
-            case "ret":  break;
+            /**
+             * | -            | < - 栈顶（表达式栈）
+             * | d            | ↑          loc.1
+             * | c            | 局部变量   loc.0
+             * |==============| 
+             * | id           |
+             * | % ip         |  
+             * | % bp         | 虚拟机数据 <-BP
+             * |==============|
+             * | b            | ↑          arg.2
+             * | a            | 参数       arg.1
+             * | _ret         | 返回值     arg.0
+             * | ...          |
+            */
+            case "call":  
+                pushNum(bp)
+                bp = sp
+                pushNum(ip)
+                ip = funlist[optnum].ip
+                pushNum(id)
+                id = optnum
+                arg = bp - (funlist[id].argNum + funlist[id].retNum)
+                loc = bp + 2
+                sp = loc + funlist[id].locNum
+                break;
+            case "ret": 
+                sp = bp + 2
+                id = popNum()
+                ip = popNum()
+                bp = popNum()
+                sp = arg
+                arg = bp - (funlist[id].argNum + funlist[id].retNum)
+                loc = bp + 2
+                sp = loc + funlist[id].locNum
+                break;
             case "callname":  break;
             case "scan.i":  break;
             case "scan.c":  break;
@@ -300,7 +376,8 @@ function pushNum(num){
         for(let i=bits-snum.length; i>0; i--)
             snum = "0" + snum
     }
-
+    console.log(num)
+    console.log(num.toString(16))
     for(i=0; i<bits; i+=2){
         // subsnum = snum.substr(i, 2)
         // console.log(subsnum)
@@ -331,7 +408,7 @@ function loadNum(bits){
         throw new Error("error bits")
     bits /= 8
     let stemp="", addr = popNum()
-    for(let i=0; i<bits; i++){
+    for(let i=bits-1; i>=0 ; i--){
         stemp = accessAddress(addr-i) + stemp
     }
     pushNum(stemp)
