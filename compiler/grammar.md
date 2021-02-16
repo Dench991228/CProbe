@@ -15,3 +15,9 @@
 - things related with typeQualifier and 'static'
 #### nested declaration of struct
 #### nested declaration of enumeration type in struct declaration scope
+#### this type of struct declaration
+```C
+struct{
+    int;
+}
+```

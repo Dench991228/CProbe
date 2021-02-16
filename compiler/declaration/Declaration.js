@@ -1,5 +1,4 @@
 /*用来关注声明的时候的共性，比如各种类型什么的*/
-var StructDeclaration = require("./StructDeclaration").StructDeclaration
 function Declaration(){
     this.Name = undefined;
     this.IsStatic = false;
@@ -8,8 +7,9 @@ function Declaration(){
     this.CurrentDeclarator = undefined;
     this.Type = undefined;
     this.Enumerators = {};
-    this.IsDeclaration = false;
+    this.IsInnerDeclaration = false;
     this.StructDecl = undefined;
+    this.StructMember = {};
     return this;
 }
 
@@ -20,7 +20,9 @@ Declaration.prototype.Name = undefined;//如果不是基本类型，这里对应
 Declaration.prototype.Signed = undefined;
 Declaration.prototype.IsConstant = false;//是不是常量，用来对付const
 Declaration.prototype.Enumerators = {};//key是enumerator constant，value是是否完成了初始化
-Declaration.prototype.IsDeclaration = false;//enumeration或者struct是不是新声明的
+Declaration.prototype.IsInnerDeclaration = false;//enumeration或者struct是不是新声明的
+Declaration.prototype.StructDecl = undefined;//用来记录正在声明的struct的信息
+Declaration.prototype.StructMember = {};//用来记录struct/union的成员信息
 /*被声明的东西*/
 Declaration.prototype.CurrentDeclarator = undefined;//记录当前正在被声明的Declarator
 Declaration.prototype.ExportEntry = function(){//把当前的声明导出成一个符号表表项
@@ -84,7 +86,15 @@ Declaration.prototype.toString = function(ctx){
         }
         enumeration+="]";
         return type+"<br>"+"name: "+this.Name+"<br>"+"enumerators: "+enumeration+"<br>";
-    }else{
+    } else if(this.Type==="struct"||this.Type==="union"){
+        let members = this.Type+": [";
+        for(let member in this.StructMember){
+            members+=("{"+member+": "+this.StructMember[member]+"}, ")
+        }
+        members+="]";
+        return type+"<br>"+"name: "+this.Name+"<br>"+"members: "+members+"<br>";
+    }
+    else{
         let isStatic = "static: "+ this.IsStatic;
         let constant = "constant: "+this.IsConstant;
         let signed = "signed: "+(this.Signed===undefined?"signed":this.Signed);

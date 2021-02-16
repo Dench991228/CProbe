@@ -225,7 +225,7 @@ structDeclarationList
     ;
 
 structDeclaration
-    :   specifierQualifierList structDeclaratorList? ';'
+    :   specifierQualifierList structDeclaratorList';'
     ;
 
 specifierQualifierList

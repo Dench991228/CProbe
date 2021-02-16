@@ -6,6 +6,7 @@ var VariableDeclaration = require("./declaration/Declaration").VariableDeclarati
 var VariableDeclarator = require("./declaration/VariableDeclarator").VariableDeclarator
 var Dict = require("./common/Contexts").ContextDict
 var Tokens = require("./common/CToken").Tokens
+var StructDeclaration = require("./declaration/StructUnionDeclaration").StructDeclaration
 
 // This class defines a complete listener for a parse tree produced by CParser.
 function MyCustomListener() {
@@ -281,8 +282,11 @@ MyCustomListener.prototype.enterBasicTypeSpecifier = function(ctx) {
 };
 
 // Exit a parse tree produced by CParser#BasicTypeSpecifier.
+/**
+ * 加上一个基本类型的typeSpecifier，仅在不声明structOrUnion的时候使用
+ * */
 MyCustomListener.prototype.exitBasicTypeSpecifier = function(ctx) {
-    this.CurrentDeclaration.addBasicTypeSpecifier(ctx);
+    if(!this.CurrentDeclaration.IsInnerDeclaration)this.CurrentDeclaration.addBasicTypeSpecifier(ctx);
 };
 
 
@@ -315,17 +319,35 @@ MyCustomListener.prototype.exitTypeDefSpecifier = function(ctx) {
 
 // Enter a parse tree produced by CParser#structOrUnionSpecifier.
 /**
- * 开始进行struct的分析，此时需要进入一个新的符号表，并且把当前的declaration变成struct
+ * 开始进行struct的分析，此时需要进入一个新的符号表，并且把当前的declaration变成struct，顺便把当前的状态改成正在声明
+ * 如果不是匿名的，就要记录其名字
+ * 仅在非声明structOrUnion过程中有用
  * */
 MyCustomListener.prototype.enterStructOrUnionSpecifier = function(ctx) {
+    if(this.CurrentDeclaration.IsInnerDeclaration)return;
     if(this.CurrentDeclaration.Type!==undefined){
         throw new Error("conflicting type in struct");
     }
-    this.CurrentDeclaration.Type="struct"
+    this.CurrentDeclaration.Type=ctx.getChild(0).getText();
+    if(ctx.getChild(1).symbol.type===Tokens['Identifier']){//如果是有名字的，那就记录其名字
+        this.CurrentDeclaration.Name = ctx.getChild(1).getText();
+    }
+    if(ctx.getChild(ctx.getChildCount()-1).symbol.type===Tokens['RightBrace']){
+        console.log("Inner Declaration")
+        if(this.CurrentDeclaration.IsInnerDeclaration){//如果正在声明新的struct，那就抛出异常
+            throw new Error("nested declaration of struct not supported!")
+        }
+        this.CurrentDeclaration.IsInnerDeclaration = true;
+        this.CurrentDeclaration.StructDecl = new StructDeclaration();
+    }
 };
 
 // Exit a parse tree produced by CParser#structOrUnionSpecifier.
+/**
+ * 离开了structOrUnion的声明，此时应该把IsDeclaration改成false
+ * */
 MyCustomListener.prototype.exitStructOrUnionSpecifier = function(ctx) {
+    this.CurrentDeclaration.IsInnerDeclaration = false;
 };
 
 
@@ -348,7 +370,13 @@ MyCustomListener.prototype.exitStructDeclarationList = function(ctx) {
 
 
 // Enter a parse tree produced by CParser#structDeclaration.
+/**
+ * 初始化新的struct成员的声明状态
+ * */
 MyCustomListener.prototype.enterStructDeclaration = function(ctx) {
+    console.log("enter struct declaration")
+    console.log(ctx.getText());
+    this.CurrentDeclaration.StructDecl = new StructDeclaration();
 };
 
 // Exit a parse tree produced by CParser#structDeclaration.
@@ -361,7 +389,17 @@ MyCustomListener.prototype.enterSpecifierQualifierList = function(ctx) {
 };
 
 // Exit a parse tree produced by CParser#specifierQualifierList.
+/**
+ * 在声明struct/union的过程中会用到
+ * TODO 别忘了考虑其他情况
+ * */
 MyCustomListener.prototype.exitSpecifierQualifierList = function(ctx) {
+    let length = ctx.getChildCount();
+    for(let i=0;i<length;i++){
+        if(ctx.getChild(i).ruleIndex===Dict['RULE_typeSpecifier']){
+            this.CurrentDeclaration.StructDecl.addTypeSpecifier(ctx.getChild(i));
+        }
+    }
 };
 
 
@@ -375,30 +413,47 @@ MyCustomListener.prototype.exitStructDeclaratorList = function(ctx) {
 
 
 // Enter a parse tree produced by CParser#structDeclarator.
+/**
+ * 进入一个新的structDeclarator，创建一个新的declarator
+ * */
 MyCustomListener.prototype.enterStructDeclarator = function(ctx) {
+    console.log("new declarator added")
+    this.CurrentDeclaration.StructDecl.newDeclarator();
 };
 
 // Exit a parse tree produced by CParser#structDeclarator.
+/**
+ * 离开structDeclarator的时候需要导出相关信息
+ * */
 MyCustomListener.prototype.exitStructDeclarator = function(ctx) {
+    let declarator = this.CurrentDeclaration.StructDecl.exportDeclarator();
+    this.CurrentDeclaration.StructMember[declarator.Identifier] = declarator;
+    console.log(declarator);
 };
 
 
 // Enter a parse tree produced by CParser#enumSpecifier.
 MyCustomListener.prototype.enterEnumSpecifier = function(ctx) {
+    if(ctx.getChild(ctx.getChildCount()-1).symbol.type===Tokens['RightBrace']){
+        this.CurrentDeclaration.IsInnerDeclaration = true;
+    }
 };
 
 // Exit a parse tree produced by CParser#enumSpecifier.
 /**
  * 遇到一个EnumerationSpecifier，这个时候需要把状态改为声明enum的状态，并且记录相应信息。
+ * 仅在非声明struct的过程中有用
  * */
 MyCustomListener.prototype.exitEnumSpecifier = function(ctx) {
+    if(this.CurrentDeclaration.IsInnerDeclaration)return;
     this.CurrentDeclaration.Type="enum";
     if(ctx.getChild(1).symbol.type===Tokens.Identifier){//中间是一个identifier
         this.CurrentDeclaration.Name = ctx.getChild(1).getText();
     }else{//匿名enum
         this.CurrentDeclaration.Name = "anonymous";
-        this.CurrentDeclaration.IsDeclaration = false;
+        this.CurrentDeclaration.IsInnerDeclaration = false;
     }
+    this.CurrentDeclaration.IsInnerDeclaration = false;
 };
 
 
@@ -408,7 +463,7 @@ MyCustomListener.prototype.exitEnumSpecifier = function(ctx) {
  * TODO 考虑当前符号表中的enum
  * */
 MyCustomListener.prototype.enterEnumeratorList = function(ctx) {
-    this.CurrentDeclaration.IsDeclaration = true;
+    this.CurrentDeclaration.IsInnerDeclaration = true;
 };
 
 // Exit a parse tree produced by CParser#enumeratorList.
@@ -496,13 +551,18 @@ MyCustomListener.prototype.enterDirectDeclarator = function(ctx) {
 };
 
 // Exit a parse tree produced by CParser#directDeclarator.
+/**
+ * 离开一个directDeclarator的情况，现在需要分别考虑普通的声明和struct中的声明
+ * TODO 声明函数的情况还没有考虑
+ * */
 MyCustomListener.prototype.exitDirectDeclarator = function(ctx) {
     let length = ctx.getChildCount();
     console.log("exit direct declarator: "+ctx.getText());
+    let declarator = this.CurrentDeclaration.IsInnerDeclaration?this.CurrentDeclaration.StructDecl.CurrentDeclarator:this.CurrentDeclaration.CurrentDeclarator
     if(length===1){//产生了一个标识符的情况
-        this.CurrentDeclaration.CurrentDeclarator.Identifier = ctx.getText();
+        declarator.Identifier = ctx.getText();
     }else if(ctx.getChild(length-1).symbol.type===Tokens['RightBracket']){//声明数组的情况，这种情况下需要增加数组的维度
-        this.CurrentDeclaration.CurrentDeclarator.ArraySize += 1;
+        declarator.ArraySize += 1;
     }else if(ctx.getChild(length-1).symbol.type===Tokens['RightParen']){//声明函数的情况
 
     }
@@ -514,8 +574,12 @@ MyCustomListener.prototype.enterPointer = function(ctx) {
 };
 
 // Exit a parse tree produced by CParser#pointer.
+/**
+ * 考虑产生指针的各种情况，需要把在struct内和外面分开讨论
+ * */
 MyCustomListener.prototype.exitPointer = function(ctx) {
     let count = ctx.getChildCount();
+    let declarator = this.CurrentDeclaration.IsInnerDeclaration?this.CurrentDeclaration.StructDecl.CurrentDeclarator:this.CurrentDeclaration.CurrentDeclarator;
     if(ctx.getChild(count-1).ruleIndex===Dict['RULE_typeQualifierList']){//只要最后一个是QualifierList，就要考虑是不是常量指针
         if(ctx.getChild(count-1).getText().search("const")!==-1){//包含const
             this.CurrentDeclaration.CurrentDeclarator.addPointer(true);
@@ -606,6 +670,7 @@ MyCustomListener.prototype.enterTypedefName = function(ctx) {
 
 // Exit a parse tree produced by CParser#typedefName.
 MyCustomListener.prototype.exitTypedefName = function(ctx) {
+    console.log("exiting typedef name: "+ctx.getText())
 };
 
 
