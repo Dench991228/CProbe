@@ -25,7 +25,7 @@
  * --->     地址从小到大     --->
  */
 var code = new Array();//代码段
-var ip = 1;//IP寄存器
+var ip = -1;//IP寄存器
 var globalSpace = new Array();//全局变量空间
 var stack = new Array();//栈空间
 var heap = new Array();//堆空间
@@ -37,7 +37,8 @@ var cbp = 0x00000000;//代码段基指针
 var gbp = 0x001fffff;//全局变量基指针
 var hbp = 0x003fffff;//堆基指针
 var sbp = 0x00ffffff;//栈基指针
-
+var lop = 0;//loc指针
+var arg = 0;//arg指针
 
 /**
  * 进栈原子操作（只操作一个字节）
@@ -102,6 +103,8 @@ function storeAddress(address, val){}
  * 指令执行模块
  */
 function run(){
+    // console.log(ip)
+    // console.log(cp)
     if(ip >= cp){ //此时IP寄存器中的目标指令尚未解释，需等待指令
         return;
     }
@@ -113,9 +116,12 @@ function run(){
          * 有操作数指令
          * var instruct = {opt:"push",num:100}
          */
-        var instruction =  code[ip];//获取此时的指令对象
+        var instruction =  code[ip+1];//获取此时的指令对象
+        // console.log(instruction)
         var opt = instruction.opt;//指令
         var optnum = instruction.num;//指令操作数
+        // console.log(opt)
+        // console.log(optnum)
         let temp, stemp //临时变量
         switch (opt){
             case "nop":  break;
@@ -135,9 +141,19 @@ function run(){
                 pushNum(temp)
                 pushNum(temp)
                 break;
-            case "loca":  break;
-            case "arga":  break;
-            case "globa":  break;
+            case "loca": 
+                sp = lop 
+                sp += optnum 
+                pushNum(sbp-sp)
+                break;
+            case "arga":  
+                sp = arg
+                sp += optnum
+                pushNum(sbp - sp)
+                break;
+            case "globa":  
+                pushNum(gbp + bp)
+                break;
             case "load.8":
                 loadNum(8)
                 break;
@@ -162,32 +178,71 @@ function run(){
             case "store.64":
                 storeNum(64)
                 break;
-            case "alloc":  break;
-            case "free":  break;
-            case "stackalloc":  sp-=8; break;
-            case "add.i":  break;
-            case "sub.i":  break;
-            case "mul.i":  break;
-            case "div.i":  break;
-            case "add.f":  break;
-            case "sub.f":  break;
-            case "mul.f":  break;
-            case "div.f":  break;
-            case "div.u":  break;
-            case "shl":  break;
-            case "shr":  break;
-            case "and":  break;
-            case "or":  break;
-            case "xor":  break;
-            case "not":  break;
-            case "cmp.i":  break;
-            case "cmp.u":  break;
-            case "cmp.f":  break;
-            case "neg.i":  break;
-            case "neg.f":  break;
-            case "itof":  break;
-            case "ftoi":  break;
-            case "shrl":  break;
+            case "alloc":  
+                break;
+            case "free":  
+                break;
+            case "stackalloc":  
+                sp-=8; 
+                break;
+            case "add.i":  
+                break;
+            case "sub.i":  
+                break;
+            case "mul.i":  
+                break;
+            case "div.i":  
+                break;
+            case "add.f":  
+                break;
+            case "sub.f":  
+                break;
+            case "mul.f":  
+                break;
+            case "div.f":  
+                break;
+            case "div.u":  
+                break;
+            case "shl":  
+                break;
+            case "shr":  
+                break;
+            case "and":  
+                break;
+            case "or":  
+                break;
+            case "xor":  
+                break;
+            case "not":  
+                break;
+            case "cmp.i":  
+                leftNum = popNum()
+                rightNum = popNum()
+                if (leftNum > rightNum){
+                    pushNum(1)
+                }
+                else{
+                    pushNum(0)
+                }
+                break;
+            case "cmp.u":   
+                leftNum = popNum()
+                rightNum = popNum()
+                break;
+            case "cmp.f":  
+                leftNum = popNum()
+                rightNum = popNum()
+                break;
+            case "neg.i":  
+                break;
+            case "neg.f":  
+                break;
+            case "itof":  
+                break;
+            case "ftoi":  
+                break;
+            case "shrl":  
+                break;
             case "set.lt":
                 temp = popNum()
                 if(temp<0)
