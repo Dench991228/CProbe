@@ -1,5 +1,13 @@
 // Generated from C.g4 by ANTLR 4.7
 // jshint ignore: start
+
+Object.prototype.toString = function(){
+    let result = "";
+    for(let item in this){
+        result += item+": "+this[item]+",";
+    }
+    return result;
+}
 var antlr4 = require('./antlr4/index');
 const CListener = require('./CListener').CListener
 var VariableDeclaration = require("./declaration/Declaration").VariableDeclaration
@@ -263,7 +271,7 @@ MyCustomListener.prototype.enterInitDeclarator = function(ctx) {
 
 // Exit a parse tree produced by CParser#initDeclarator.
 MyCustomListener.prototype.exitInitDeclarator = function(ctx) {
-    document.getElementById("output").innerHTML+=this.CurrentDeclaration.CurrentDeclarator.toString()+"<br>";
+    document.getElementById("output").innerHTML+=this.CurrentDeclaration.exportDeclarator().toString()+"<br>";
 };
 
 
@@ -333,7 +341,6 @@ MyCustomListener.prototype.enterStructOrUnionSpecifier = function(ctx) {
         this.CurrentDeclaration.Name = ctx.getChild(1).getText();
     }
     if(ctx.getChild(ctx.getChildCount()-1).symbol.type===Tokens['RightBrace']){
-        console.log("Inner Declaration")
         if(this.CurrentDeclaration.IsInnerDeclaration){//如果正在声明新的struct，那就抛出异常
             throw new Error("nested declaration of struct not supported!")
         }
@@ -374,8 +381,6 @@ MyCustomListener.prototype.exitStructDeclarationList = function(ctx) {
  * 初始化新的struct成员的声明状态
  * */
 MyCustomListener.prototype.enterStructDeclaration = function(ctx) {
-    console.log("enter struct declaration")
-    console.log(ctx.getText());
     this.CurrentDeclaration.StructDecl = new StructDeclaration();
 };
 
@@ -398,6 +403,8 @@ MyCustomListener.prototype.exitSpecifierQualifierList = function(ctx) {
     for(let i=0;i<length;i++){
         if(ctx.getChild(i).ruleIndex===Dict['RULE_typeSpecifier']){
             this.CurrentDeclaration.StructDecl.addTypeSpecifier(ctx.getChild(i));
+        }else{
+            this.CurrentDeclaration.StructDecl.addTypeQualifier(ctx.getChild(i));
         }
     }
 };
@@ -417,7 +424,6 @@ MyCustomListener.prototype.exitStructDeclaratorList = function(ctx) {
  * 进入一个新的structDeclarator，创建一个新的declarator
  * */
 MyCustomListener.prototype.enterStructDeclarator = function(ctx) {
-    console.log("new declarator added")
     this.CurrentDeclaration.StructDecl.newDeclarator();
 };
 
@@ -428,7 +434,6 @@ MyCustomListener.prototype.enterStructDeclarator = function(ctx) {
 MyCustomListener.prototype.exitStructDeclarator = function(ctx) {
     let declarator = this.CurrentDeclaration.StructDecl.exportDeclarator();
     this.CurrentDeclaration.StructMember[declarator.Identifier] = declarator;
-    console.log(declarator);
 };
 
 
@@ -557,7 +562,6 @@ MyCustomListener.prototype.enterDirectDeclarator = function(ctx) {
  * */
 MyCustomListener.prototype.exitDirectDeclarator = function(ctx) {
     let length = ctx.getChildCount();
-    console.log("exit direct declarator: "+ctx.getText());
     let declarator = this.CurrentDeclaration.IsInnerDeclaration?this.CurrentDeclaration.StructDecl.CurrentDeclarator:this.CurrentDeclaration.CurrentDeclarator
     if(length===1){//产生了一个标识符的情况
         declarator.Identifier = ctx.getText();
@@ -582,12 +586,12 @@ MyCustomListener.prototype.exitPointer = function(ctx) {
     let declarator = this.CurrentDeclaration.IsInnerDeclaration?this.CurrentDeclaration.StructDecl.CurrentDeclarator:this.CurrentDeclaration.CurrentDeclarator;
     if(ctx.getChild(count-1).ruleIndex===Dict['RULE_typeQualifierList']){//只要最后一个是QualifierList，就要考虑是不是常量指针
         if(ctx.getChild(count-1).getText().search("const")!==-1){//包含const
-            this.CurrentDeclaration.CurrentDeclarator.addPointer(true);
+            declarator.addPointer(true);
         }else{
-            this.CurrentDeclaration.CurrentDeclarator.addPointer(false);
+            declarator.addPointer(false);
         }
     }else{//最后连个QualifierList都没有，显然是非常数指针
-        this.CurrentDeclaration.CurrentDeclarator.addPointer(false);
+        declarator.addPointer(false);
     }
 };
 
@@ -670,7 +674,6 @@ MyCustomListener.prototype.enterTypedefName = function(ctx) {
 
 // Exit a parse tree produced by CParser#typedefName.
 MyCustomListener.prototype.exitTypedefName = function(ctx) {
-    console.log("exiting typedef name: "+ctx.getText())
 };
 
 

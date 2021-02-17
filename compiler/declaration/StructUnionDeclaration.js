@@ -13,6 +13,7 @@ StructUnionDeclaration.prototype.Name = undefined;//如果上面不是基本类�
 /**
  * 给当前的struct/Union中被声明的东西添加一个typeSpecifier
  * 注意不能嵌套声明enum/struct
+ * @param ctx 新加入的typeSpecifier
  * */
 StructUnionDeclaration.prototype.addTypeSpecifier = function(ctx){
     if(ctx.getChild(0).ruleIndex===ruleDict['RULE_structOrUnionSpecifier']){//struct 或者 union
@@ -54,9 +55,10 @@ StructUnionDeclaration.prototype.addTypeSpecifier = function(ctx){
 }
 /**
  * 给当前的struct/Union中被声明的东西添加一个Qualifier
+ * @param ctx 新加入的typeQualifier
  * */
 StructUnionDeclaration.prototype.addTypeQualifier = function(ctx){
-
+    if(ctx.getText()==="const")this.IsConstant = true;
 }
 /**
  * 给当前的成员声明添加一个declarator
@@ -65,9 +67,20 @@ StructUnionDeclaration.prototype.newDeclarator = function(){
     this.CurrentDeclarator = new VariableDeclarator();
 }
 /**
- * 导出当前的declarator，并且把前面的声明什么的也加上
+ * 导出当前的declarator，并且把前面的声明什么的也加上，基本上就是符号表中的内容了
  * */
 StructUnionDeclaration.prototype.exportDeclarator = function(){
-    return this.CurrentDeclarator;
+    let result = {}
+    let declarator = this.CurrentDeclarator;
+    result.Name = this.Name;
+    result.Type = this.Type;
+    result.Signed = this.Signed;
+    result.IsConstant = this.IsConstant;
+    for(let item in declarator){
+        if(!(declarator[item] instanceof Function)){
+            result[item] = declarator[item]
+        }
+    }
+    return result;
 }
 exports.StructDeclaration = StructUnionDeclaration

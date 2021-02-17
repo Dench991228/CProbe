@@ -87,7 +87,7 @@ Declaration.prototype.toString = function(ctx){
         enumeration+="]";
         return type+"<br>"+"name: "+this.Name+"<br>"+"enumerators: "+enumeration+"<br>";
     } else if(this.Type==="struct"||this.Type==="union"){
-        let members = this.Type+": [";
+        let members = "[";
         for(let member in this.StructMember){
             members+=("{"+member+": "+this.StructMember[member]+"}, ")
         }
@@ -102,5 +102,29 @@ Declaration.prototype.toString = function(ctx){
         return isStatic+"<br>"+constant+"<br>"+signed+"<br>"+type+"<br>";
     }
 }
+/**
+ * 导出当前的declarator使之便于加入符号表
+ * */
+Declaration.prototype.exportDeclarator = function(){
+    let result = {};
+    for(let item in this){
+        if(!(this[item] instanceof Function)){
+            result[item] = this[item];
+        }
+    }
+    result.CurrentDeclarator = {};
+    for(let item in this.CurrentDeclarator){
+        if(!(this.CurrentDeclarator[item] instanceof Function)){
+            result.CurrentDeclarator[item] = this.CurrentDeclarator[item];
+        }
+    }
+    delete result.StructDecl;
+    return result;
+}
+/**
+ * 导出当前的声明，比如struct/union,enumeration 什么的
+ * */
+Declaration.prototype.exportDeclaration = function(){
 
+}
 exports.VariableDeclaration = Declaration

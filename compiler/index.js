@@ -10813,6 +10813,14 @@ exports.CParser = CParser;
 },{"./CListener":2,"./antlr4/index":47}],4:[function(require,module,exports){
 // Generated from C.g4 by ANTLR 4.7
 // jshint ignore: start
+
+Object.prototype.toString = function(){
+    let result = "";
+    for(let item in this){
+        result += item+": "+this[item]+",";
+    }
+    return result;
+}
 var antlr4 = require('./antlr4/index');
 const CListener = require('./CListener').CListener
 var VariableDeclaration = require("./declaration/Declaration").VariableDeclaration
@@ -11076,7 +11084,7 @@ MyCustomListener.prototype.enterInitDeclarator = function(ctx) {
 
 // Exit a parse tree produced by CParser#initDeclarator.
 MyCustomListener.prototype.exitInitDeclarator = function(ctx) {
-    document.getElementById("output").innerHTML+=this.CurrentDeclaration.CurrentDeclarator.toString()+"<br>";
+    document.getElementById("output").innerHTML+=this.CurrentDeclaration.exportDeclarator().toString()+"<br>";
 };
 
 
@@ -11146,7 +11154,6 @@ MyCustomListener.prototype.enterStructOrUnionSpecifier = function(ctx) {
         this.CurrentDeclaration.Name = ctx.getChild(1).getText();
     }
     if(ctx.getChild(ctx.getChildCount()-1).symbol.type===Tokens['RightBrace']){
-        console.log("Inner Declaration")
         if(this.CurrentDeclaration.IsInnerDeclaration){//如果正在声明新的struct，那就抛出异常
             throw new Error("nested declaration of struct not supported!")
         }
@@ -11187,8 +11194,6 @@ MyCustomListener.prototype.exitStructDeclarationList = function(ctx) {
  * 初始化新的struct成员的声明状态
  * */
 MyCustomListener.prototype.enterStructDeclaration = function(ctx) {
-    console.log("enter struct declaration")
-    console.log(ctx.getText());
     this.CurrentDeclaration.StructDecl = new StructDeclaration();
 };
 
@@ -11211,6 +11216,8 @@ MyCustomListener.prototype.exitSpecifierQualifierList = function(ctx) {
     for(let i=0;i<length;i++){
         if(ctx.getChild(i).ruleIndex===Dict['RULE_typeSpecifier']){
             this.CurrentDeclaration.StructDecl.addTypeSpecifier(ctx.getChild(i));
+        }else{
+            this.CurrentDeclaration.StructDecl.addTypeQualifier(ctx.getChild(i));
         }
     }
 };
@@ -11230,7 +11237,6 @@ MyCustomListener.prototype.exitStructDeclaratorList = function(ctx) {
  * 进入一个新的structDeclarator，创建一个新的declarator
  * */
 MyCustomListener.prototype.enterStructDeclarator = function(ctx) {
-    console.log("new declarator added")
     this.CurrentDeclaration.StructDecl.newDeclarator();
 };
 
@@ -11241,7 +11247,6 @@ MyCustomListener.prototype.enterStructDeclarator = function(ctx) {
 MyCustomListener.prototype.exitStructDeclarator = function(ctx) {
     let declarator = this.CurrentDeclaration.StructDecl.exportDeclarator();
     this.CurrentDeclaration.StructMember[declarator.Identifier] = declarator;
-    console.log(declarator);
 };
 
 
@@ -11370,7 +11375,6 @@ MyCustomListener.prototype.enterDirectDeclarator = function(ctx) {
  * */
 MyCustomListener.prototype.exitDirectDeclarator = function(ctx) {
     let length = ctx.getChildCount();
-    console.log("exit direct declarator: "+ctx.getText());
     let declarator = this.CurrentDeclaration.IsInnerDeclaration?this.CurrentDeclaration.StructDecl.CurrentDeclarator:this.CurrentDeclaration.CurrentDeclarator
     if(length===1){//产生了一个标识符的情况
         declarator.Identifier = ctx.getText();
@@ -11395,12 +11399,12 @@ MyCustomListener.prototype.exitPointer = function(ctx) {
     let declarator = this.CurrentDeclaration.IsInnerDeclaration?this.CurrentDeclaration.StructDecl.CurrentDeclarator:this.CurrentDeclaration.CurrentDeclarator;
     if(ctx.getChild(count-1).ruleIndex===Dict['RULE_typeQualifierList']){//只要最后一个是QualifierList，就要考虑是不是常量指针
         if(ctx.getChild(count-1).getText().search("const")!==-1){//包含const
-            this.CurrentDeclaration.CurrentDeclarator.addPointer(true);
+            declarator.addPointer(true);
         }else{
-            this.CurrentDeclaration.CurrentDeclarator.addPointer(false);
+            declarator.addPointer(false);
         }
     }else{//最后连个QualifierList都没有，显然是非常数指针
-        this.CurrentDeclaration.CurrentDeclarator.addPointer(false);
+        declarator.addPointer(false);
     }
 };
 
@@ -11483,7 +11487,6 @@ MyCustomListener.prototype.enterTypedefName = function(ctx) {
 
 // Exit a parse tree produced by CParser#typedefName.
 MyCustomListener.prototype.exitTypedefName = function(ctx) {
-    console.log("exiting typedef name: "+ctx.getText())
 };
 
 
@@ -24146,7 +24149,7 @@ Declaration.prototype.toString = function(ctx){
         enumeration+="]";
         return type+"<br>"+"name: "+this.Name+"<br>"+"enumerators: "+enumeration+"<br>";
     } else if(this.Type==="struct"||this.Type==="union"){
-        let members = this.Type+": [";
+        let members = "[";
         for(let member in this.StructMember){
             members+=("{"+member+": "+this.StructMember[member]+"}, ")
         }
@@ -24161,7 +24164,25 @@ Declaration.prototype.toString = function(ctx){
         return isStatic+"<br>"+constant+"<br>"+signed+"<br>"+type+"<br>";
     }
 }
-
+/**
+ * 导出当前的declarator使之便于加入符号表
+ * */
+Declaration.prototype.exportDeclarator = function(){
+    let result = {};
+    for(let item in this){
+        if(!(this[item] instanceof Function)){
+            result[item] = this[item];
+        }
+    }
+    result.CurrentDeclarator = {};
+    for(let item in this.CurrentDeclarator){
+        if(!(this.CurrentDeclarator[item] instanceof Function)){
+            result.CurrentDeclarator[item] = this.CurrentDeclarator[item];
+        }
+    }
+    delete result.StructDecl;
+    return result;
+}
 exports.VariableDeclaration = Declaration
 },{}],56:[function(require,module,exports){
 /*用来记录一个struct声明的过程*/
@@ -24179,6 +24200,7 @@ StructUnionDeclaration.prototype.Name = undefined;//如果上面不是基本类�
 /**
  * 给当前的struct/Union中被声明的东西添加一个typeSpecifier
  * 注意不能嵌套声明enum/struct
+ * @param ctx 新加入的typeSpecifier
  * */
 StructUnionDeclaration.prototype.addTypeSpecifier = function(ctx){
     if(ctx.getChild(0).ruleIndex===ruleDict['RULE_structOrUnionSpecifier']){//struct 或者 union
@@ -24220,9 +24242,10 @@ StructUnionDeclaration.prototype.addTypeSpecifier = function(ctx){
 }
 /**
  * 给当前的struct/Union中被声明的东西添加一个Qualifier
+ * @param ctx 新加入的typeQualifier
  * */
 StructUnionDeclaration.prototype.addTypeQualifier = function(ctx){
-
+    if(ctx.getText()==="const")this.IsConstant = true;
 }
 /**
  * 给当前的成员声明添加一个declarator
@@ -24231,10 +24254,21 @@ StructUnionDeclaration.prototype.newDeclarator = function(){
     this.CurrentDeclarator = new VariableDeclarator();
 }
 /**
- * 导出当前的declarator，并且把前面的声明什么的也加上
+ * 导出当前的declarator，并且把前面的声明什么的也加上，基本上就是符号表中的内容了
  * */
 StructUnionDeclaration.prototype.exportDeclarator = function(){
-    return this.CurrentDeclarator;
+    let result = {}
+    let declarator = this.CurrentDeclarator;
+    result.Name = this.Name;
+    result.Type = this.Type;
+    result.Signed = this.Signed;
+    result.IsConstant = this.IsConstant;
+    for(let item in declarator){
+        if(!(declarator[item] instanceof Function)){
+            result[item] = declarator[item]
+        }
+    }
+    return result;
 }
 exports.StructDeclaration = StructUnionDeclaration
 },{"../common/CToken":53,"../common/Contexts":54,"./VariableDeclarator":57}],57:[function(require,module,exports){
