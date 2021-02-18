@@ -35,13 +35,28 @@
   console.log(popStack()); 
   getNewCode(0x10); 
   console.log(globalSpace[gp]);*/
-  console.log(stack);
-  putNewCode({opt:"push",num:0x0123456789abcdef})
-  console.log(stack);
-  putNewCode({opt:"push",num:0x00ffffff})
-  console.log(stack);
-  putNewCode({opt:"load.64"})
-  console.log(stack);
+  /*console.log(stack);
+  putNewCode({opt:"push",num:1.0})
+  printStack()
+  putNewCode({opt:"push",num:2.0})
+  printStack()
+  putNewCode({opt:"add.f"})
+  printStack()*/
+  putNewCode({opt:"stackalloc",num:0})
+  putNewCode({opt:"call",num:2})
+  putNewCode({opt:"nop"})
+  putNewCode({opt:"arga",num:0})
+  putNewCode({opt:"push",num:120})
+  putNewCode({opt:"store.64"})
+  putNewCode({opt:"ret"})
+  putNewCode({opt:"loca",num:0})
+  putNewCode({opt:"stackalloc",num:1})
+  putNewCode({opt:"call",num:1})
+  putNewCode({opt:"store.64"})
+  putNewCode({opt:"ret"})
+  run(); 
+  
+
 </script>
 <style scoped>
 .button-yunxing{
