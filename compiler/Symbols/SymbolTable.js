@@ -4,4 +4,6 @@ function SymbolTable(){
     return this
 }
 
+SymbolTable.prototype.fatherTable = undefined;
+SymbolTable.prototype.fields = {};//key 是identifier, value是entry
 exports.SymbolTable = SymbolTable;

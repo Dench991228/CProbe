@@ -10842,6 +10842,7 @@ MyCustomListener.prototype.CurrentDeclaration = new VariableDeclaration();
 
 // Enter a parse tree produced by CParser#primaryExpression.
 MyCustomListener.prototype.enterPrimaryExpression = function(ctx) {
+    console.log("primary expression: "+ctx.getText())
 };
 
 // Exit a parse tree produced by CParser#primaryExpression.
@@ -24182,6 +24183,12 @@ Declaration.prototype.exportDeclarator = function(){
     }
     delete result.StructDecl;
     return result;
+}
+/**
+ * 导出当前的声明，比如struct/union,enumeration 什么的
+ * */
+Declaration.prototype.exportDeclaration = function(){
+
 }
 exports.VariableDeclaration = Declaration
 },{}],56:[function(require,module,exports){

@@ -29,6 +29,7 @@ MyCustomListener.prototype.CurrentDeclaration = new VariableDeclaration();
 
 // Enter a parse tree produced by CParser#primaryExpression.
 MyCustomListener.prototype.enterPrimaryExpression = function(ctx) {
+    console.log("primary expression: "+ctx.getText())
 };
 
 // Exit a parse tree produced by CParser#primaryExpression.
