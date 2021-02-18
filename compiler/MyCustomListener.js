@@ -4,7 +4,7 @@
 Object.prototype.toString = function(){
     let result = "";
     for(let item in this){
-        result += item+": "+this[item]+",";
+        if(!(this[item] instanceof Function))result += item+": "+this[item]+"<br>";
     }
     return result;
 }
@@ -25,7 +25,7 @@ function MyCustomListener() {
 MyCustomListener.prototype = Object.create(CListener.prototype);
 MyCustomListener.prototype.constructor = MyCustomListener;
 MyCustomListener.prototype.CurrentDeclaration = new VariableDeclaration();
-
+MyCustomListener.prototype.SymbolTable = new SymbolTable();
 
 // Enter a parse tree produced by CParser#primaryExpression.
 MyCustomListener.prototype.enterPrimaryExpression = function(ctx) {
