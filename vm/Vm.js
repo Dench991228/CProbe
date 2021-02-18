@@ -449,12 +449,8 @@ function run(){
                 bp = popNum()
                 // printStack()
                 console.log("bp:" + bp)
-                sp = arg
                 arg = bp - (funlist[id].argNum + funlist[id].retNum)
                 loc = bp + 2
-                sp = loc + funlist[id].locNum
-                printStack()
-                run()
                 break;
             case "callname":  break;
             case "scan.i":  break;
@@ -468,7 +464,6 @@ function run(){
             case "panic":  break;
         }
         printStack()
-        run();
     }
     else{
         return;

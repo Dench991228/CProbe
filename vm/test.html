@@ -42,9 +42,9 @@
   printStack()
   putNewCode({opt:"add.f"})
   printStack()*/
-  putNewCode({opt:"stackalloc",num:0})
+  putNewCode({opt:"stackalloc",num:1})
   putNewCode({opt:"call",num:2})
-  putNewCode({opt:"nop"})
+  putNewCode({opt:"exit"})
   putNewCode({opt:"arga",num:0})
   putNewCode({opt:"push",num:120})
   putNewCode({opt:"store.64"})
@@ -53,8 +53,23 @@
   putNewCode({opt:"stackalloc",num:1})
   putNewCode({opt:"call",num:1})
   putNewCode({opt:"store.64"})
+  putNewCode({opt:"arga",num:0})
+  putNewCode({opt:"loca",num:0})
+  putNewCode({opt:"load.64"})
+  putNewCode({opt:"store.64"})
   putNewCode({opt:"ret"})
-  run(); 
+  
+  /*putNewCode({opt:"push",num:0})
+  putNewCode({opt:"push",num:2})
+  putNewCode({opt:"push",num:0})
+  putNewCode({opt:"push",num:0})
+  putNewCode({opt:"push",num:0x00ffffe0})
+  putNewCode({opt:"push",num:120})
+  putNewCode({opt:"store.64"})
+  */
+  while(code[ip].opt != "exit"){
+    run(); 
+  }
   
 
 </script>
