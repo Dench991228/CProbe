@@ -5,3 +5,4 @@ function display(){
         console.log(str.charAt(i)+":"+str.charCodeAt(i).toString(16))
     }
 }
+ins = [{opcode:"sdsdsd", number:"asdads"},{},{}]
