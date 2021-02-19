@@ -34,7 +34,7 @@ var cp = -1;//代码偏移指针
 var gp = -1;//全局变量偏移指针
 var hp = -1;//堆偏移指针
 var sp = -1;//栈偏移指针
-var bp = 0;//帧指针
+var bp = 7;//帧指针
 var cbp = 0x00000000;//代码段基指针
 var gbp = 0x001fffff;//全局变量基指针
 var hbp = 0x003fffff;//堆基指针
@@ -45,7 +45,7 @@ var arg = 0;//arg指针
 var funlist = new Array()
 funlist[0] = { locNum: 0, argNum: 0, retNum: 0, ip: 0 }//funlist[id].argNum + funlist[id].retNum + funlist[id].locNum + funlist[optnum].ip
 funlist[1] = { locNum: 0, argNum: 0, retNum: 1, ip: 3 }//funlist[id].argNum + funlist[id].retNum + funlist[id].locNum + funlist[optnum].ip
-funlist[2] = { locNum: 1, argNum: 0, retNum: 0, ip: 7 }//funlist[id].argNum + funlist[id].retNum + funlist[id].locNum + funlist[optnum].ip
+funlist[2] = { locNum: 1, argNum: 0, retNum: 1, ip: 7 }//funlist[id].argNum + funlist[id].retNum + funlist[id].locNum + funlist[optnum].ip
 
 function printStack(){
     var l = stack.length
@@ -197,12 +197,12 @@ function run(){
                 pushNum(temp)
                 break;
             case "loca":  
-                temp = sbp - (loc + optnum) 
+                temp = loc - 8*optnum 
                 pushNum(temp)
                 ip += 1
                 break;
             case "arga":  
-                temp = sbp - (arg + optnum)
+                temp = arg - 8*optnum
                 pushNum(temp)
                 ip += 1
                 break;
@@ -254,6 +254,7 @@ function run(){
                 break;
             case "add.i": 
                 pushNum(BigInt(popNum()) + BigInt(popNum()))
+                ip += 1
                 // temp1 = popNum()
                 // temp2 = popNum()
                 // console.log(temp1 + temp2)
@@ -263,57 +264,71 @@ function run(){
                 right = BigInt(popNum())
                 left = BigInt(popNum())
                 pushNum(left - right)
+                ip += 1
                 break;
             case "mul.i":  
                 pushNum(BigInt(popNum()) * BigInt(popNum()))
+                ip += 1
                 break;
             case "div.i":  
                 right = BigInt(popNum())
                 left = BigInt(popNum())
                 pushNum(left / right)
+                ip += 1
                 break;
             case "add.f":  
                 pushNum(HexToFloat(popBytes()) + HexToFloat(popBytes()))
+                ip += 1
                 break;
             case "sub.f":  
                 right = HexToFloat(popBytes())
                 left = HexToFloat(popBytes())
                 pushNum(left - right)
+                ip += 1
                 break;
             case "mul.f":  
                 pushNum(HexToFloat(popBytes()) * HexToFloat(popBytes()))
+                ip += 1
                 break;
             case "div.f":  
                 right = HexToFloat(popBytes())
                 left = HexToFloat(popBytes())
                 pushNum(left / right)
+                ip += 1
                 break;
             case "div.u":  
                 right = BigInt(popNum() >>> 0)
                 left = BigInt(popNum() >>> 0)
                 pushNum(left / right)
+                ip += 1
                 break;
             case "shl":  
                 right = BigInt(popNum())
                 left = BigInt(popNum())
                 pushNum(left << right)
+                ip += 1
                 break;
             case "shr": 
                 right = BigInt(popNum())
                 left = BigInt(popNum())
                 pushNum(left >> right)
+                ip += 1
                 break;
             case "and":  
                 pushNum(BigInt(popNum()) & BigInt(popNum()))
+                ip += 1
                 break;
             case "or":  
                 pushNum(BigInt(popNum()) | BigInt(popNum()))
+                ip += 1
                 break;
             case "xor":  
                 pushNum(BigInt(popNum()) ^ BigInt(popNum()))
+                ip += 1
                 break;
             case "not":  
                 pushNum(!BigInt(popNum()))
+                ip += 1
                 break;
             case "cmp.i":  
                 right = popNum()
@@ -413,31 +428,34 @@ function run(){
              * | ...          |
             */
             case "call":  
-                pushNum(bp)
                 console.log("oldbp: 0x00" + (sbp - bp).toString(16))
-                console.log("newbp: 0x00" + (sbp - sp).toString(16))
+                pushNum((sbp - bp))
                 bp = sp
+                console.log("sp:"+sp)
+                console.log("newbp: 0x00" + (sbp - bp).toString(16))
                 pushNum(ip+1)
                 ip = funlist[optnum].ip
                 pushNum(id)
                 id = optnum
-                arg = bp - (funlist[id].argNum*8 + 8*funlist[id].retNum) - 9
-                loc = bp + 3*8
-                console.log("arg:"+arg)
-                console.log("loc:" + loc)
-                sp = loc + funlist[id].locNum
+                console.log("argNum:" + funlist[id].argNum)
+                console.log("retNum:" + funlist[id].retNum)
+                arg = sbp - bp + (funlist[id].argNum*8 + 8*funlist[id].retNum) 
+                console.log("arg: 0x00" + arg.toString(16))
+                loc = sbp - bp - 3*8
+                console.log("loc: 0x00" + loc.toString(16))
+                console.log("fun:" + id)
+                sp = sbp - loc - 8
                 for (var i = 0; i < funlist[id].locNum ; i ++){
                     pushNum(0)
                 }
                 break;
             case "ret": 
-                sp = bp + 2*8 +1
-                while(stack.length>sp){
+                sp = bp + 2*8 
+                while(stack.length>sp+1){
                     stack.pop()
                 }
                 // printStack()
-                console.log("newbp:"+bp)
-                console.log("sp:" + sp)
+                console.log("newbp: 0x00" + (sbp - bp).toString(16))
                 // console.log("newbp: 0x00" + (sbp - bp).toString(16))
                 // console.log("sp: 0x00" + (sbp-sp).toString(16))
                 id = popNum()
@@ -446,11 +464,13 @@ function run(){
                 ip = popNum()
                 // printStack()
                 console.log("ip:" + ip)
-                bp = popNum()
+                bp = sbp - popNum()
                 // printStack()
-                console.log("bp:" + bp)
-                arg = bp - (funlist[id].argNum + funlist[id].retNum)
-                loc = bp + 2
+                console.log("oldbp: 0x00" + (sbp - bp).toString(16))
+                arg = sbp - bp + (funlist[id].argNum * 8 + 8 * funlist[id].retNum)
+                console.log("arg: 0x00" + arg.toString(16))
+                loc = sbp - bp - 3 * 8
+                console.log("loc: 0x00" + loc.toString(16))
                 break;
             case "callname":  break;
             case "scan.i":  break;
@@ -463,6 +483,7 @@ function run(){
             case "println":  break;
             case "panic":  break;
         }
+        console.log("sp: 0x00" + (sbp - sp).toString(16))
         printStack()
     }
     else{
@@ -529,10 +550,10 @@ function loadNum(bits){
         throw new Error("error bits")
     bits /= 8
     let stemp="", addr = popNum()
-    // console.log(addr)
+    console.log(addr.toString(16))
     // console.log(0x0123456789abcdef)
     for(let i=0; i<bits ; i++){
-        stemp = accessAddress(addr-i) + stemp
+        stemp = stemp + accessAddress(addr+i) 
     }
     pushNum(stemp)
     // return parseInt(stemp, 16)
@@ -545,18 +566,21 @@ function storeNum(bits){
     bits /= 4
     let val = popNum(), addr = popNum()
     // console.log("1")
-    // console.log(val)
-    // console.log(addr)
+    // console.log(val.toString(16))
+    // console.log(addr.toString(16))
     let snum = val.toString(16)
     if(snum.length>=bits){
         snum = snum.substr(snum.length-bits)
     }
     else {
         for(let i=bits-snum.length; i>0; i--)
-            snum = snum + "0"
+            snum = "0" + snum 
     }
+    // console.log(snum)
     for(let i=0; i<bits; i+=2){
-        storeAddress(addr+i/2, snum.substr(bits-2-i, 2))
+        // console.log(i)
+        // console.log((addr + 7 - i / 2).toString(16))
+        storeAddress(addr + 7 -i/2, snum.substr(bits-2-i, 2))
         //stemp = accessAddress(addr-i) + stemp
     }
     // return parseInt(stemp, 16)

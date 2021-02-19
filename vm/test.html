@@ -42,6 +42,7 @@
   printStack()
   putNewCode({opt:"add.f"})
   printStack()*/
+  //检验函数
   putNewCode({opt:"stackalloc",num:1})
   putNewCode({opt:"call",num:2})
   putNewCode({opt:"exit"})
@@ -58,14 +59,16 @@
   putNewCode({opt:"load.64"})
   putNewCode({opt:"store.64"})
   putNewCode({opt:"ret"})
-  
-  /*putNewCode({opt:"push",num:0})
-  putNewCode({opt:"push",num:2})
-  putNewCode({opt:"push",num:0})
-  putNewCode({opt:"push",num:0})
-  putNewCode({opt:"push",num:0x00ffffe0})
-  putNewCode({opt:"push",num:120})
+  /*
+  putNewCode({opt:"stackalloc",num:1})
+  putNewCode({opt:"call",num:1})
+  putNewCode({opt:"exit"})
+  putNewCode({opt:"arga",num:0})
+  putNewCode({opt:"push",num:1})
+  putNewCode({opt:"push",num:1})
+  putNewCode({opt:"add.i"})
   putNewCode({opt:"store.64"})
+  putNewCode({opt:"ret"})
   */
   while(code[ip].opt != "exit"){
     run(); 
