@@ -15,6 +15,7 @@ var VariableDeclarator = require("./declaration/VariableDeclarator").VariableDec
 var Dict = require("./common/Contexts").ContextDict
 var Tokens = require("./common/CToken").Tokens
 var StructDeclaration = require("./declaration/StructUnionDeclaration").StructDeclaration
+const SymbolTable = require("./Symbols/SymbolTable").SymbolTable
 
 // This class defines a complete listener for a parse tree produced by CParser.
 function MyCustomListener() {
@@ -340,6 +341,8 @@ MyCustomListener.prototype.enterStructOrUnionSpecifier = function(ctx) {
     this.CurrentDeclaration.Type=ctx.getChild(0).getText();
     if(ctx.getChild(1).symbol.type===Tokens['Identifier']){//如果是有名字的，那就记录其名字
         this.CurrentDeclaration.Name = ctx.getChild(1).getText();
+    }else{//否则是一个星号
+        this.CurrentDeclaration.Name = "*";
     }
     if(ctx.getChild(ctx.getChildCount()-1).symbol.type===Tokens['RightBrace']){
         if(this.CurrentDeclaration.IsInnerDeclaration){//如果正在声明新的struct，那就抛出异常
@@ -456,7 +459,7 @@ MyCustomListener.prototype.exitEnumSpecifier = function(ctx) {
     if(ctx.getChild(1).symbol.type===Tokens.Identifier){//中间是一个identifier
         this.CurrentDeclaration.Name = ctx.getChild(1).getText();
     }else{//匿名enum
-        this.CurrentDeclaration.Name = "anonymous";
+        this.CurrentDeclaration.Name = "*";
         this.CurrentDeclaration.IsInnerDeclaration = false;
     }
     this.CurrentDeclaration.IsInnerDeclaration = false;

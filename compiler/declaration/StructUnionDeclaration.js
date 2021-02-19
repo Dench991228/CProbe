@@ -2,6 +2,7 @@
 let ruleDict = require("../common/Contexts").ContextDict
 let tokenDict = require("../common/CToken").Tokens
 let VariableDeclarator = require("./VariableDeclarator").VariableDeclarator
+const VariableDecl = require("../Symbols/VariableDecl").VariableDecl;
 function StructUnionDeclaration(){
     return this;
 }
@@ -67,20 +68,18 @@ StructUnionDeclaration.prototype.newDeclarator = function(){
     this.CurrentDeclarator = new VariableDeclarator();
 }
 /**
- * 导出当前的declarator，并且把前面的声明什么的也加上，基本上就是符号表中的内容了
+ * 导出当前的declarator，并且把前面的声明什么的也加上，生成一个符号表表项
  * */
 StructUnionDeclaration.prototype.exportDeclarator = function(){
-    let result = {}
-    let declarator = this.CurrentDeclarator;
-    result.Name = this.Name;
-    result.Type = this.Type;
-    result.Signed = this.Signed;
+    let result = new VariableDecl();
     result.IsConstant = this.IsConstant;
-    for(let item in declarator){
-        if(!(declarator[item] instanceof Function)){
-            result[item] = declarator[item]
-        }
-    }
+    result.IsStatic = false;
+    result.ArrayDimension = this.CurrentDeclarator.ArraySize;
+    result.ConstantPointer = this.CurrentDeclarator.ConstantPointer;
+    result.Type = this.Type;
+    result.Name = this.Name;
+    result.Signed = this.Signed;
+    result.Identifier = this.CurrentDeclarator.Identifier;
     return result;
 }
 exports.StructDeclaration = StructUnionDeclaration

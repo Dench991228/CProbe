@@ -1,3 +1,6 @@
+const VariableDecl = require("../Symbols/VariableDecl").VariableDecl;
+const StructUnionDecl = require("../Symbols/StructUnionDecl").StructUnionDecl;
+const EnumerationDecl = require("../Symbols/EnumerationDecl").EnumerationDecl;
 /*用来关注声明的时候的共性，比如各种类型什么的*/
 function Declaration(){
     this.Name = undefined;
@@ -106,25 +109,44 @@ Declaration.prototype.toString = function(ctx){
  * 导出当前的declarator使之便于加入符号表
  * */
 Declaration.prototype.exportDeclarator = function(){
-    let result = {};
-    for(let item in this){
-        if(!(this[item] instanceof Function)){
-            result[item] = this[item];
-        }
-    }
-    result.CurrentDeclarator = {};
-    for(let item in this.CurrentDeclarator){
-        if(!(this.CurrentDeclarator[item] instanceof Function)){
-            result.CurrentDeclarator[item] = this.CurrentDeclarator[item];
-        }
-    }
-    delete result.StructDecl;
-    return result;
+    let entry = new VariableDecl();
+    entry.Signed = this.Signed;
+    entry.Type = this.Type;
+    entry.IsStatic = this.IsStatic;
+    entry.IsConstant = this.IsConstant;
+    entry.Name = this.Name;
+    entry.ArrayDimension = this.CurrentDeclarator.ArraySize;
+    entry.ConstantPointer = this.CurrentDeclarator.ConstantPointer;
+    entry.Identifier = this.CurrentDeclarator.Identifier;
+    return entry;
 }
 /**
- * 导出当前的声明，比如struct/union,enumeration 什么的
+ * 导出当前的声明，比如struct/union,enumeration 什么的到符号表
+ * TODO 需要考虑enumeration里面初始化的工作
+ * @param table 符号表
  * */
-Declaration.prototype.exportDeclaration = function(){
-
+Declaration.prototype.exportDeclaration = function(table){
+    switch(this.Type){
+        case "enum":
+            let enumDecl = new EnumerationDecl();
+            enumDecl.Identifier = this.Name;
+            for(let constant in this.Enumerators){
+                let entry = SymbolEntry.prototype.enumConstantEntry(constant, this.Enumerators[constant]);
+                enumDecl.Constants.addSymbol(constant, entry);
+                table.addSymbol(constant, entry);
+            }
+            if(this.Name!=="*")table.addSymbol(this.Name, enumDecl);
+            break;
+        case "union":
+        case "struct":
+            let structDecl = new StructUnionDecl();
+            for( let identifier in this.StructMember){
+                structDecl.StructTable.addSymbol(identifier, this.StructMember[identifier]);
+            }
+            structDecl.Identifier = this.Name;
+            structDecl.Type = this.Type;
+            table.addSymbol(structDecl.Identifier, structDecl);
+            break;
+    }
 }
 exports.VariableDeclaration = Declaration
