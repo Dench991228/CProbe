@@ -365,6 +365,40 @@ function run(){
             case "cmp.i":  
                 right = popNum()
                 left = popNum()
+                right_fu = 0
+                left_fu = 0
+                if(right>0x7fffffff){
+                    right_fu = 1
+                    right = 0xffffffff + 1 - right
+                }
+                if (left > 0x7fffffff){
+                    left_fu = 1
+                    left = 0xffffffff + 1 - left
+                }
+                if((left_fu + right_fu) == 1){
+                    if (right_fu == 1) {
+                        pushNum(1)
+                    }
+                    else {
+                        pushNum(0xffffffff)
+                    }
+                }
+                else {
+                    if (left > right) {
+                        pushNum(1)
+                    }
+                    else if (left < right) {
+                        pushNum(0xffffffff)
+                    }
+                    else {
+                        pushNum(0)
+                    }
+                }
+                ip += 1
+                break;
+            case "cmp.u":   
+                right = popNum()
+                left = popNum()
                 if (left > right) {
                     pushNum(1)
                 }
@@ -375,18 +409,6 @@ function run(){
                     pushNum(0)
                 }
                 ip += 1
-                break;
-            case "cmp.u":   
-                left = popNum() >>> 0
-                if (left > right) {
-                    pushNum(1n)
-                }
-                else if (left < right) {
-                    pushNum(-1n)
-                }
-                else {
-                    pushNum(0n)
-                }
                 break;
             case "cmp.f":  
                 right = HexToFloat(popBytes())
@@ -433,17 +455,17 @@ function run(){
                     pushNum(0)
                 break;
             case "br":
-                ip += optnum
+                ip += (optnum + 1)
                 break;
             case "br.false":
                 temp = popNum()
                 if(temp===0)
-                    ip += optnum
+                    ip += (optnum + 1)
                 break;
             case "br.true":
                 temp = popNum()
                 if(temp!==0)
-                    ip += optnum
+                    ip += (optnum + 1)
                 break;
             /**
              * | -            | < - 栈顶（表达式栈）

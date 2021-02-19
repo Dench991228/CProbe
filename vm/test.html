@@ -64,9 +64,9 @@
   putNewCode({opt:"call",num:1})
   putNewCode({opt:"exit"})
   putNewCode({opt:"arga",num:0})
-  putNewCode({opt:"push",num:0})
-  putNewCode({opt:"push",num:1})
-  putNewCode({opt:"cmp.i"})
+  //putNewCode({opt:"push",num:0xffffffff})
+  putNewCode({opt:"push",num:0xffff})
+  putNewCode({opt:"not"})
   putNewCode({opt:"store.64"})
   putNewCode({opt:"ret"})
   
