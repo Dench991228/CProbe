@@ -11037,8 +11037,11 @@ MyCustomListener.prototype.enterDeclaration = function(ctx) {
 };
 
 // Exit a parse tree produced by CParser#declaration.
+/**
+ * 退出一个声明的时候，把之前的enum，union，struct什么的都给导出，如果没有名字（名字是*），那就没有它
+ * */
 MyCustomListener.prototype.exitDeclaration = function(ctx) {
-    this.CurrentDeclaration.exportDeclaration(this.SymbolTable);
+    if(this.CurrentDeclaration.Name!=="*")this.CurrentDeclaration.exportDeclaration(this.SymbolTable);
     document.getElementById("table").innerHTML+=this.SymbolTable+"<br>";
     let count_child = ctx.getChildCount();
 };
@@ -11258,9 +11261,6 @@ MyCustomListener.prototype.exitStructDeclarator = function(ctx) {
 
 // Enter a parse tree produced by CParser#enumSpecifier.
 MyCustomListener.prototype.enterEnumSpecifier = function(ctx) {
-    if(ctx.getChild(ctx.getChildCount()-1).symbol.type===Tokens['RightBrace']){
-        this.CurrentDeclaration.IsInnerDeclaration = true;
-    }
 };
 
 // Exit a parse tree produced by CParser#enumSpecifier.
@@ -11287,7 +11287,6 @@ MyCustomListener.prototype.exitEnumSpecifier = function(ctx) {
  * TODO 考虑当前符号表中的enum
  * */
 MyCustomListener.prototype.enterEnumeratorList = function(ctx) {
-    this.CurrentDeclaration.IsInnerDeclaration = true;
 };
 
 // Exit a parse tree produced by CParser#enumeratorList.
@@ -11381,7 +11380,7 @@ MyCustomListener.prototype.enterDirectDeclarator = function(ctx) {
  * */
 MyCustomListener.prototype.exitDirectDeclarator = function(ctx) {
     let length = ctx.getChildCount();
-    let declarator = this.CurrentDeclaration.IsInnerDeclaration?this.CurrentDeclaration.StructDecl.CurrentDeclarator:this.CurrentDeclaration.CurrentDeclarator
+    let declarator = this.CurrentDeclaration.IsInnerDeclaration&&this.CurrentDeclaration.Type==="struct"?this.CurrentDeclaration.StructDecl.CurrentDeclarator:this.CurrentDeclaration.CurrentDeclarator
     if(length===1){//产生了一个标识符的情况
         declarator.Identifier = ctx.getText();
     }else if(ctx.getChild(length-1).symbol.type===Tokens['RightBracket']){//声明数组的情况，这种情况下需要增加数组的维度
@@ -11719,15 +11718,23 @@ window.executeParse = executeParse;
 },{"./CLexer.js":1,"./CParser.js":3,"./MyCustomListener.js":4,"./antlr4/index":52}],6:[function(require,module,exports){
 const SymbolEntry = require("./SymbolEntry").SymbolEntry
 const SymbolTable = require("../Symbols/SymbolTable").SymbolTable;
+const VariableDecl = require("../Symbols/VariableDecl").VariableDecl;
 
 function EnumerationDecl(){
     SymbolEntry.call(this);
     this.Constants= new SymbolTable();
     return this;
 }
+function enumConstantEntry(ident, initialized){
+    let result = new VariableDecl();
+    result.Identifier = ident;
+    result.Initialized = initialized;
+    return result;
+}
 EnumerationDecl.prototype.Constants = new SymbolTable();//记录这个enumerator的常数
 exports.EnumerationDecl = EnumerationDecl;
-},{"../Symbols/SymbolTable":9,"./SymbolEntry":8}],7:[function(require,module,exports){
+exports.enumConstantEntry = enumConstantEntry;
+},{"../Symbols/SymbolTable":9,"../Symbols/VariableDecl":10,"./SymbolEntry":8}],7:[function(require,module,exports){
 const SymbolTable = require("./SymbolTable").SymbolTable;
 const SymbolEntry = require("./SymbolEntry").SymbolEntry
 
@@ -11740,7 +11747,8 @@ StructUnionDecl.prototype.StructTable = undefined;//用来记录声明信息，�
 StructUnionDecl.prototype.Type = undefined;//struct or union
 exports.StructUnionDecl = StructUnionDecl;
 },{"./SymbolEntry":8,"./SymbolTable":9}],8:[function(require,module,exports){
-const VariableDecl = require("./VariableDecl").VariableDecl;
+let VariableDecl = require("./VariableDecl").VariableDecl;
+const StructUnionDecl = require("./StructUnionDecl").StructUnionDecl;
 function SymbolEntry(){
     this.Size = 0;
     this.Identifier = undefined;
@@ -11755,13 +11763,13 @@ SymbolEntry.prototype.Identifier = undefined;//这个表项的identifier
  * @return 返回一个符号表项，表示这个符号
  */
 SymbolEntry.prototype.enumConstantEntry = function(ident, initialized){
-    let result = new VariableDecl();
-    result.Identifier = ident;
-    result.Initialized = initialized;
+    let result = new StructUnionDecl();
+    /*result.Identifier = ident;
+    result.Initialized = initialized;*/
     return result;
 }
 exports.SymbolEntry = SymbolEntry;
-},{"./VariableDecl":10}],9:[function(require,module,exports){
+},{"./StructUnionDecl":7,"./VariableDecl":10}],9:[function(require,module,exports){
 function SymbolTable(){
     this.fatherTable = null;// symbol table of higher level
     this.fields = [];// fields in this level of symbol table，因为是列表，所以可以比较方便的获得偏移量相关的信息
@@ -24170,6 +24178,7 @@ exports.ContextDict = Contexts;
 const VariableDecl = require("../Symbols/VariableDecl").VariableDecl;
 const StructUnionDecl = require("../Symbols/StructUnionDecl").StructUnionDecl;
 const EnumerationDecl = require("../Symbols/EnumerationDecl").EnumerationDecl;
+const enumConstantEntry = require("../Symbols/EnumerationDecl").enumConstantEntry;
 /*用来关注声明的时候的共性，比如各种类型什么的*/
 function Declaration(){
     this.Name = undefined;
@@ -24301,7 +24310,7 @@ Declaration.prototype.exportDeclaration = function(table){
             let enumDecl = new EnumerationDecl();
             enumDecl.Identifier = this.Name;
             for(let constant in this.Enumerators){
-                let entry = SymbolEntry.prototype.enumConstantEntry(constant, this.Enumerators[constant]);
+                let entry = enumConstantEntry(constant, this.Enumerators[constant])
                 enumDecl.Constants.addSymbol(constant, entry);
                 table.addSymbol(constant, entry);
             }

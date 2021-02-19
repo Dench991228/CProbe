@@ -1,4 +1,5 @@
-const VariableDecl = require("./VariableDecl").VariableDecl;
+let VariableDecl = require("./VariableDecl").VariableDecl;
+const StructUnionDecl = require("./StructUnionDecl").StructUnionDecl;
 function SymbolEntry(){
     this.Size = 0;
     this.Identifier = undefined;
@@ -13,9 +14,9 @@ SymbolEntry.prototype.Identifier = undefined;//这个表项的identifier
  * @return 返回一个符号表项，表示这个符号
  */
 SymbolEntry.prototype.enumConstantEntry = function(ident, initialized){
-    let result = new VariableDecl();
-    result.Identifier = ident;
-    result.Initialized = initialized;
+    let result = new StructUnionDecl();
+    /*result.Identifier = ident;
+    result.Initialized = initialized;*/
     return result;
 }
 exports.SymbolEntry = SymbolEntry;

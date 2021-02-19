@@ -224,8 +224,11 @@ MyCustomListener.prototype.enterDeclaration = function(ctx) {
 };
 
 // Exit a parse tree produced by CParser#declaration.
+/**
+ * 退出一个声明的时候，把之前的enum，union，struct什么的都给导出，如果没有名字（名字是*），那就没有它
+ * */
 MyCustomListener.prototype.exitDeclaration = function(ctx) {
-    this.CurrentDeclaration.exportDeclaration(this.SymbolTable);
+    if(this.CurrentDeclaration.Name!=="*")this.CurrentDeclaration.exportDeclaration(this.SymbolTable);
     document.getElementById("table").innerHTML+=this.SymbolTable+"<br>";
     let count_child = ctx.getChildCount();
 };
@@ -445,9 +448,6 @@ MyCustomListener.prototype.exitStructDeclarator = function(ctx) {
 
 // Enter a parse tree produced by CParser#enumSpecifier.
 MyCustomListener.prototype.enterEnumSpecifier = function(ctx) {
-    if(ctx.getChild(ctx.getChildCount()-1).symbol.type===Tokens['RightBrace']){
-        this.CurrentDeclaration.IsInnerDeclaration = true;
-    }
 };
 
 // Exit a parse tree produced by CParser#enumSpecifier.
@@ -474,7 +474,6 @@ MyCustomListener.prototype.exitEnumSpecifier = function(ctx) {
  * TODO 考虑当前符号表中的enum
  * */
 MyCustomListener.prototype.enterEnumeratorList = function(ctx) {
-    this.CurrentDeclaration.IsInnerDeclaration = true;
 };
 
 // Exit a parse tree produced by CParser#enumeratorList.
@@ -568,7 +567,7 @@ MyCustomListener.prototype.enterDirectDeclarator = function(ctx) {
  * */
 MyCustomListener.prototype.exitDirectDeclarator = function(ctx) {
     let length = ctx.getChildCount();
-    let declarator = this.CurrentDeclaration.IsInnerDeclaration?this.CurrentDeclaration.StructDecl.CurrentDeclarator:this.CurrentDeclaration.CurrentDeclarator
+    let declarator = this.CurrentDeclaration.IsInnerDeclaration&&this.CurrentDeclaration.Type==="struct"?this.CurrentDeclaration.StructDecl.CurrentDeclarator:this.CurrentDeclaration.CurrentDeclarator
     if(length===1){//产生了一个标识符的情况
         declarator.Identifier = ctx.getText();
     }else if(ctx.getChild(length-1).symbol.type===Tokens['RightBracket']){//声明数组的情况，这种情况下需要增加数组的维度
