@@ -179,7 +179,14 @@ function run(){
                 return
                 break;
             case "push":
-                pushNum(optnum)
+                var num = optnum
+                if (num < 0) {
+                    num = 0xffffffff + num + 1
+                }
+                else if (num > 0xffffffff) {
+                    num = Number(num) - 0xffffffff
+                }
+                pushNum(num)
                 ip += 1
                 break;
             case "pop":
@@ -267,13 +274,38 @@ function run(){
                 ip += 1
                 break;
             case "mul.i":  
-                pushNum(BigInt(popNum()) * BigInt(popNum()))
+                right = popNum()
+                left = popNum()
+                var res = 0
+                var x = Number(left)
+                var y = Number(right)
+                for (var i = 0; i < 32; i++) {//32位长度为满足测试数据，大小可根据实际修改 
+                    if ((y & 1) == 1) {//y的最低位是否为1
+                        res += x;//计算相乘的结果 
+                    }
+                    x <<= 1;
+                    y >>= 1;
+                }
+                pushNum(res)
                 ip += 1
                 break;
             case "div.i":  
-                right = BigInt(popNum())
-                left = BigInt(popNum())
-                pushNum(left / right)
+                right = popNum()//除数
+                left = popNum()//被除数
+                var result,fuhao=0;
+                if(right>0x7fffffff){
+                    fuhao += 1
+                    right = 0xffffffff - right + 1
+                }
+                if(left>0x7ffffffff){
+                    fuhao += 1
+                    left = 0xffffffff - left + 1
+                }
+                result = left/right
+                if(fuhao == 1){
+                    result = 0xffffffff - result + 1
+                }
+                pushNum(result)
                 ip += 1
                 break;
             case "add.f":  
@@ -493,12 +525,6 @@ function run(){
 
 // 输入要入栈的数字，位数默认64，执行大端法入栈操作
 function pushNum(num){
-    if(num<0){
-        num = 0xffffffff + num
-    }
-    else if(num >= 0xffffffff){
-        num = Number(num) - 0xffffffff
-    }
     let bits=64
     if(bits%4!==0)
         bits = bits-(bits%4)+4
@@ -538,9 +564,6 @@ function popNum(){
     }
     // console.log(parseInt(num, 16))
     var out = parseInt(num, 16)
-    if(out > 0xffffffff){
-        out = out - 0xffffffff
-    }
     return out
 }
 
