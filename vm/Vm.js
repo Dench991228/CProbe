@@ -366,13 +366,13 @@ function run(){
                 right = popNum()
                 left = popNum()
                 if (left > right) {
-                    pushNum(1n)
+                    pushNum(1)
                 }
                 else if (left < right) {
-                    pushNum(-1n)
+                    pushNum(0xffffffff)
                 }
                 else {
-                    pushNum(0n)
+                    pushNum(0)
                 }
                 ip += 1
                 break;
