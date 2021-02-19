@@ -1,7 +1,6 @@
 const VariableDecl = require("../Symbols/VariableDecl").VariableDecl;
 const StructUnionDecl = require("../Symbols/StructUnionDecl").StructUnionDecl;
 const EnumerationDecl = require("../Symbols/EnumerationDecl").EnumerationDecl;
-const enumConstantEntry = require("../Symbols/EnumerationDecl").enumConstantEntry;
 /*用来关注声明的时候的共性，比如各种类型什么的*/
 function Declaration(){
     this.Name = undefined;
@@ -133,7 +132,7 @@ Declaration.prototype.exportDeclaration = function(table){
             let enumDecl = new EnumerationDecl();
             enumDecl.Identifier = this.Name;
             for(let constant in this.Enumerators){
-                let entry = enumConstantEntry(constant, this.Enumerators[constant])
+                let entry = EnumerationDecl.enumConstantEntry(constant, this.Enumerators[constant])
                 enumDecl.Constants.addSymbol(constant, entry);
                 table.addSymbol(constant, entry);
             }

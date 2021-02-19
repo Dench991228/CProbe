@@ -11725,7 +11725,7 @@ function EnumerationDecl(){
     this.Constants= new SymbolTable();
     return this;
 }
-function enumConstantEntry(ident, initialized){
+EnumerationDecl.enumConstantEntry = function(ident, initialized){
     let result = new VariableDecl();
     result.Identifier = ident;
     result.Initialized = initialized;
@@ -11733,7 +11733,6 @@ function enumConstantEntry(ident, initialized){
 }
 EnumerationDecl.prototype.Constants = new SymbolTable();//记录这个enumerator的常数
 exports.EnumerationDecl = EnumerationDecl;
-exports.enumConstantEntry = enumConstantEntry;
 },{"../Symbols/SymbolTable":9,"../Symbols/VariableDecl":10,"./SymbolEntry":8}],7:[function(require,module,exports){
 const SymbolTable = require("./SymbolTable").SymbolTable;
 const SymbolEntry = require("./SymbolEntry").SymbolEntry
@@ -24178,7 +24177,6 @@ exports.ContextDict = Contexts;
 const VariableDecl = require("../Symbols/VariableDecl").VariableDecl;
 const StructUnionDecl = require("../Symbols/StructUnionDecl").StructUnionDecl;
 const EnumerationDecl = require("../Symbols/EnumerationDecl").EnumerationDecl;
-const enumConstantEntry = require("../Symbols/EnumerationDecl").enumConstantEntry;
 /*用来关注声明的时候的共性，比如各种类型什么的*/
 function Declaration(){
     this.Name = undefined;
@@ -24310,7 +24308,7 @@ Declaration.prototype.exportDeclaration = function(table){
             let enumDecl = new EnumerationDecl();
             enumDecl.Identifier = this.Name;
             for(let constant in this.Enumerators){
-                let entry = enumConstantEntry(constant, this.Enumerators[constant])
+                let entry = EnumerationDecl.enumConstantEntry(constant, this.Enumerators[constant])
                 enumDecl.Constants.addSymbol(constant, entry);
                 table.addSymbol(constant, entry);
             }

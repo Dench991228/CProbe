@@ -7,7 +7,7 @@ function EnumerationDecl(){
     this.Constants= new SymbolTable();
     return this;
 }
-function enumConstantEntry(ident, initialized){
+EnumerationDecl.enumConstantEntry = function(ident, initialized){
     let result = new VariableDecl();
     result.Identifier = ident;
     result.Initialized = initialized;
@@ -15,4 +15,3 @@ function enumConstantEntry(ident, initialized){
 }
 EnumerationDecl.prototype.Constants = new SymbolTable();//记录这个enumerator的常数
 exports.EnumerationDecl = EnumerationDecl;
-exports.enumConstantEntry = enumConstantEntry;
