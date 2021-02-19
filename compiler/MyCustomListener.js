@@ -225,7 +225,8 @@ MyCustomListener.prototype.enterDeclaration = function(ctx) {
 
 // Exit a parse tree produced by CParser#declaration.
 MyCustomListener.prototype.exitDeclaration = function(ctx) {
-    document.getElementById("output").innerHTML+= (this.CurrentDeclaration.toString()+"<br>");
+    this.CurrentDeclaration.exportDeclaration(this.SymbolTable);
+    document.getElementById("table").innerHTML+=this.SymbolTable+"<br>";
     let count_child = ctx.getChildCount();
 };
 
@@ -273,7 +274,8 @@ MyCustomListener.prototype.enterInitDeclarator = function(ctx) {
 
 // Exit a parse tree produced by CParser#initDeclarator.
 MyCustomListener.prototype.exitInitDeclarator = function(ctx) {
-    document.getElementById("output").innerHTML+=this.CurrentDeclaration.exportDeclarator().toString()+"<br>";
+    let declarator = this.CurrentDeclaration.exportDeclarator(this.SymbolTable);
+    document.getElementById("output").innerHTML+= declarator+"<br>"
 };
 
 

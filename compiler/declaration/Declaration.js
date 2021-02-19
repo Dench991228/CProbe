@@ -106,9 +106,9 @@ Declaration.prototype.toString = function(ctx){
     }
 }
 /**
- * 导出当前的declarator使之便于加入符号表
+ * 导出当前的declarator，并且加入符号表中
  * */
-Declaration.prototype.exportDeclarator = function(){
+Declaration.prototype.exportDeclarator = function(table){
     let entry = new VariableDecl();
     entry.Signed = this.Signed;
     entry.Type = this.Type;
@@ -118,6 +118,7 @@ Declaration.prototype.exportDeclarator = function(){
     entry.ArrayDimension = this.CurrentDeclarator.ArraySize;
     entry.ConstantPointer = this.CurrentDeclarator.ConstantPointer;
     entry.Identifier = this.CurrentDeclarator.Identifier;
+    table.addSymbol(entry.Identifier, entry);
     return entry;
 }
 /**
@@ -136,7 +137,7 @@ Declaration.prototype.exportDeclaration = function(table){
                 table.addSymbol(constant, entry);
             }
             if(this.Name!=="*")table.addSymbol(this.Name, enumDecl);
-            break;
+            return enumDecl;
         case "union":
         case "struct":
             let structDecl = new StructUnionDecl();
@@ -146,7 +147,7 @@ Declaration.prototype.exportDeclaration = function(table){
             structDecl.Identifier = this.Name;
             structDecl.Type = this.Type;
             table.addSymbol(structDecl.Identifier, structDecl);
-            break;
+            return structDecl;
     }
 }
 exports.VariableDeclaration = Declaration
