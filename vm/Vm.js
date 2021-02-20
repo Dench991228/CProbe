@@ -422,23 +422,32 @@ function run(){
                 else {
                     pushNum(0n)
                 }
+                ip += 1
                 break;
             case "neg.i": 
                 pushNum(BigInt(-popNum())) 
+                ip += 1
                 break;
             case "neg.f":  
                 pushNum(-HexToFloat(popBytes()))
+                ip += 1
                 break;
             case "itof":  
-                pushNum(parseInt(popBytes(), 16))
+                pushNum(SingleToHex(popNum()))
+                ip += 1
                 break;
-            case "ftoi": 
-                pushNum(BigInt(parseInt(HexToFloat(popBytes())))) 
+            case "ftoi":
+                temp = popBytes()
+                console.log(temp)
+                console.log(HexToFloat(temp))
+                pushNum(BigInt(parseInt(HexToFloat(temp)))) 
+                ip += 1
                 break;
             case "shrl":  
                 right = BigInt(popNum())
                 left = BigInt(popNum())
                 pushNum(left >>> right)
+                ip += 1
                 break;
             case "set.lt":
                 temp = popNum()
@@ -446,6 +455,7 @@ function run(){
                     pushNum(1)
                 else
                     pushNum(0)
+                ip += 1
                 break;
             case "set.gt":
                 temp = popNum()
@@ -453,6 +463,7 @@ function run(){
                     pushNum(1)
                 else
                     pushNum(0)
+                ip += 1
                 break;
             case "br":
                 ip += (optnum + 1)
@@ -505,7 +516,7 @@ function run(){
                 break;
             case "ret": 
                 sp = bp + 2*8 
-                while(stack.length>sp+1){
+                while(stack.length>sp+1){i
                     stack.pop()
                 }
                 // printStack()
@@ -589,6 +600,23 @@ function popNum(){
     return out
 }
 
+// 位数默认64，执行大端法出栈操作
+function popBytes() {
+    let bits = 64
+    if (bits % 4 !== 0)
+        bits = bits - (bits % 4) + 4
+    if (bits > 64)
+        throw new Error("error bits")
+    bits /= 8
+    num = ""
+    for (let i = 0; i < bits; i++) {
+        num = num + popStack() 
+    }
+    // return parseInt(num, 16)
+    // 根据其他指令选择int或double解释
+    return num
+}
+
 // 用于load.x
 function loadNum(bits){
     if(bits%8!==0)
@@ -639,23 +667,6 @@ function pushBytes(snum) {
         // pushStack(parseInt(subsnum, 16))
         pushStack(snum.substr(i, 2))
     }
-}
-
-// 位数默认64，执行大端法出栈操作
-function popBytes() {
-    let bits = 64
-    if (bits % 4 !== 0)
-        bits = bits - (bits % 4) + 4
-    if (bits > 64)
-        throw new Error("error bits")
-    bits /= 8
-    num = ""
-    for (let i = 0; i < bits; i++) {
-        num = popStack() + num
-    }
-    // return parseInt(num, 16)
-    // 根据其他指令选择int或double解释
-    return num
 }
 
 /*function popNum() {

@@ -60,16 +60,20 @@
   putNewCode({opt:"store.64"})
   putNewCode({opt:"ret"})
   */
-  putNewCode({opt:"stackalloc",num:1})
+  /*putNewCode({opt:"stackalloc",num:1})
   putNewCode({opt:"call",num:1})
   putNewCode({opt:"exit"})
   putNewCode({opt:"arga",num:0})
   //putNewCode({opt:"push",num:0xffffffff})
-  putNewCode({opt:"push",num:0xffff})
-  putNewCode({opt:"not"})
+  putNewCode({opt:"push",num:1})
+  putNewCode({opt:"itof"}) 
+  putNewCode({opt:"ftoi"})  
   putNewCode({opt:"store.64"})
-  putNewCode({opt:"ret"})
-  
+  putNewCode({opt:"ret"})*/
+  putNewCode({opt:"push",num:})
+  //putNewCode({opt:"itof"})  
+  putNewCode({opt:"ftoi"}) 
+  putNewCode({opt:"exit"})
   while(code[ip].opt != "exit"){
     run(); 
   }
