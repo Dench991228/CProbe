@@ -200,11 +200,11 @@ CListener.prototype.exitConstantExpression = function(ctx) {
 };
 
 
-// Enter a parse tree produced by CParser#declaration.
+// Enter a parse tree produced by CParser#varDeclaration.
 CListener.prototype.enterDeclaration = function(ctx) {
 };
 
-// Exit a parse tree produced by CParser#declaration.
+// Exit a parse tree produced by CParser#varDeclaration.
 CListener.prototype.exitDeclaration = function(ctx) {
 };
 

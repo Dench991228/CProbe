@@ -10,11 +10,11 @@ Object.prototype.toString = function(){
 }
 var antlr4 = require('./antlr4/index');
 const CListener = require('./CListener').CListener
-var VariableDeclaration = require("./declaration/Declaration").VariableDeclaration
-var VariableDeclarator = require("./declaration/VariableDeclarator").VariableDeclarator
+var VariableDeclaration = require("./varDeclaration/Declaration").VariableDeclaration
+var VariableDeclarator = require("./varDeclaration/VariableDeclarator").VariableDeclarator
 var Dict = require("./common/Contexts").ContextDict
 var Tokens = require("./common/CToken").Tokens
-var StructDeclaration = require("./declaration/StructUnionDeclaration").StructDeclaration
+var StructDeclaration = require("./varDeclaration/StructUnionDeclaration").StructDeclaration
 const SymbolTable = require("./Symbols/SymbolTable").SymbolTable
 
 // This class defines a complete listener for a parse tree produced by CParser.
@@ -218,12 +218,12 @@ MyCustomListener.prototype.exitConstantExpression = function(ctx) {
 };
 
 
-// Enter a parse tree produced by CParser#declaration.
+// Enter a parse tree produced by CParser#varDeclaration.
 MyCustomListener.prototype.enterDeclaration = function(ctx) {
     this.CurrentDeclaration = new VariableDeclaration();
 };
 
-// Exit a parse tree produced by CParser#declaration.
+// Exit a parse tree produced by CParser#varDeclaration.
 /**
  * 退出一个声明的时候，把之前的enum，union，struct什么的都给导出，如果没有名字（名字是*），那就没有它
  * */
@@ -351,7 +351,7 @@ MyCustomListener.prototype.enterStructOrUnionSpecifier = function(ctx) {
     }
     if(ctx.getChild(ctx.getChildCount()-1).symbol.type===Tokens['RightBrace']){
         if(this.CurrentDeclaration.IsInnerDeclaration){//如果正在声明新的struct，那就抛出异常
-            throw new Error("nested declaration of struct not supported!")
+            throw new Error("nested varDeclaration of struct not supported!")
         }
         this.CurrentDeclaration.IsInnerDeclaration = true;
         this.CurrentDeclaration.StructDecl = new StructDeclaration();

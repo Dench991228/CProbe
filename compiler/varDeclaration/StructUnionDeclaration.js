@@ -22,7 +22,7 @@ StructUnionDeclaration.prototype.addTypeSpecifier = function(ctx){
         else {
             this.Type = ctx.getChild(0).getChild(0).getText();
             if(ctx.getChild(0).getChild(ctx.getChild(0).getChildCount()-1)===tokenDict['RightBrace']){
-                throw new Error("nested declaration of struct or union not supported!")
+                throw new Error("nested varDeclaration of struct or union not supported!")
             }
             this.Name = ctx.getChild(0).getChild(1).getText();
         }
@@ -31,7 +31,7 @@ StructUnionDeclaration.prototype.addTypeSpecifier = function(ctx){
         else {
             this.Type = ctx.getChild(0).getChild(0).getText();
             if(ctx.getChild(0).getChild(ctx.getChild(0).getChildCount()-1)===tokenDict['RightBrace']){
-                throw new Error("nested declaration of enumeration constant not supported!")
+                throw new Error("nested varDeclaration of enumeration constant not supported!")
             }
             this.Name = ctx.getChild(0).getChild(1).getText();
         }
