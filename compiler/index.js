@@ -10841,19 +10841,20 @@ var VariableDeclaration = require("./varDeclaration/Declaration").VariableDeclar
 var VariableDeclarator = require("./varDeclaration/VariableDeclarator").VariableDeclarator
 var Dict = require("./common/Contexts").ContextDict
 var Tokens = require("./common/CToken").Tokens
-var StructDeclaration = require("./varDeclaration/StructUnionDeclaration").StructDeclaration
 const SymbolTable = require("./Symbols/SymbolTable").SymbolTable
 
 // This class defines a complete listener for a parse tree produced by CParser.
 function MyCustomListener() {
     CListener.call(this);
+    this.DeclarationStack = [];
+    this.DeclaratorStack = [];
+    this.SymbolTableStack = [];
     this.SymbolTableStack.push(new SymbolTable());
     return this;
 }
 
 MyCustomListener.prototype = Object.create(CListener.prototype);
 MyCustomListener.prototype.constructor = MyCustomListener;
-MyCustomListener.prototype.SymbolTable = new SymbolTable();
 MyCustomListener.prototype.DeclarationStack = [];//用来记录各种各样的declaration
 MyCustomListener.prototype.DeclaratorStack = [];//用来记录各种各样的declarator
 MyCustomListener.prototype.SymbolTableStack = [];//栈式符号表
@@ -11060,7 +11061,7 @@ MyCustomListener.prototype.enterDeclaration = function(ctx) {
 MyCustomListener.prototype.exitDeclaration = function(ctx) {
     let current_declaration = this.DeclarationStack.pop();
     if(current_declaration.Name!=="*"&&current_declaration.Name!==undefined)current_declaration.exportDeclaration(this.SymbolTableStack.peekLast());
-    document.getElementById("table").innerHTML+=this.SymbolTableStack.peekLast()+"<br>";
+    //document.getElementById("table").innerHTML+=this.SymbolTableStack.peekLast()+"<br>";
 };
 
 
@@ -11112,7 +11113,7 @@ MyCustomListener.prototype.exitInitDeclarator = function(ctx) {
     let current_declaration = this.DeclarationStack.peekLast();
     let declarator = current_declaration.exportDeclarator(this.SymbolTableStack.peekLast());
     this.DeclaratorStack.pop();
-    document.getElementById("output").innerHTML+= declarator+"<br>"
+    document.getElementById("output").innerHTML+= declarator.Members+"<br>"
 };
 
 
@@ -11709,7 +11710,7 @@ MyCustomListener.prototype.exitDeclarationList = function(ctx) {
 
 
 exports.MyCustomListener = MyCustomListener;
-},{"./CListener":2,"./Symbols/SymbolTable":9,"./antlr4/index":52,"./common/CToken":58,"./common/Contexts":59,"./varDeclaration/Declaration":60,"./varDeclaration/StructUnionDeclaration":61,"./varDeclaration/VariableDeclarator":62}],5:[function(require,module,exports){
+},{"./CListener":2,"./Symbols/SymbolTable":9,"./antlr4/index":52,"./common/CToken":58,"./common/Contexts":59,"./varDeclaration/Declaration":60,"./varDeclaration/VariableDeclarator":61}],5:[function(require,module,exports){
 const antlr4 = require("./antlr4/index")
 const CustomLexer = require("./CLexer.js")
 const CustomParser = require("./CParser.js")
@@ -12279,7 +12280,7 @@ var CharStreams = {
 
 exports.CharStreams = CharStreams;
 
-},{"./InputStream":16,"fs":63}],13:[function(require,module,exports){
+},{"./InputStream":16,"fs":62}],13:[function(require,module,exports){
 //
 /* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
@@ -12483,7 +12484,7 @@ FileStream.prototype.constructor = FileStream;
 
 exports.FileStream = FileStream;
 
-},{"./InputStream":16,"fs":63}],16:[function(require,module,exports){
+},{"./InputStream":16,"fs":62}],16:[function(require,module,exports){
 //
 /* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
@@ -24322,6 +24323,8 @@ Declaration.prototype.exportDeclarator = function(table){
     entry.ArrayDimension = this.CurrentDeclarator.ArraySize;
     entry.ConstantPointer = this.CurrentDeclarator.ConstantPointer;
     entry.Identifier = this.CurrentDeclarator.Identifier;
+    entry.Members = this.StructMember;
+    console.log(this.StructMember);
     table.addSymbol(entry.Identifier, entry);
     return entry;
 }
@@ -24357,92 +24360,6 @@ Declaration.prototype.exportDeclaration = function(table){
 }
 exports.VariableDeclaration = Declaration
 },{"../Symbols/EnumerationDecl":6,"../Symbols/StructUnionDecl":7,"../Symbols/SymbolEntry":8,"../Symbols/SymbolTable":9,"../Symbols/VariableDecl":10,"../common/CToken":58,"../common/Contexts":59}],61:[function(require,module,exports){
-/*用来记录一个struct声明的过程*/
-let ruleDict = require("../common/Contexts").ContextDict
-let tokenDict = require("../common/CToken").Tokens
-let VariableDeclarator = require("./VariableDeclarator").VariableDeclarator
-const VariableDecl = require("../Symbols/VariableDecl").VariableDecl;
-function StructUnionDeclaration(){
-    return this;
-}
-StructUnionDeclaration.prototype.CurrentDeclarator = undefined;//记录当前正在被声明的东西
-StructUnionDeclaration.prototype.IsConstant = false;//是不是常数
-StructUnionDeclaration.prototype.Type = undefined;//是哪一种类型
-StructUnionDeclaration.prototype.Signed = undefined;//有没有符号位
-StructUnionDeclaration.prototype.Name = undefined;//如果上面不是基本类型，那这里就是具体的类型
-/**
- * 给当前的struct/Union中被声明的东西添加一个typeSpecifier
- * 注意不能嵌套声明enum/struct
- * @param ctx 新加入的typeSpecifier
- * */
-StructUnionDeclaration.prototype.addTypeSpecifier = function(ctx){
-    if(ctx.getChild(0).ruleIndex===ruleDict['RULE_structOrUnionSpecifier']){//struct 或者 union
-        if(this.Type!==undefined)throw new Error("conflicting type");
-        else {
-            this.Type = ctx.getChild(0).getChild(0).getText();
-            if(ctx.getChild(0).getChild(ctx.getChild(0).getChildCount()-1)===tokenDict['RightBrace']){
-                throw new Error("nested varDeclaration of struct or union not supported!")
-            }
-            this.Name = ctx.getChild(0).getChild(1).getText();
-        }
-    }else if(ctx.getChild(0).ruleIndex===ruleDict['RULE_enumSpecifier']){//enum
-        if(this.Type!==undefined)throw new Error("conflicting type");
-        else {
-            this.Type = ctx.getChild(0).getChild(0).getText();
-            if(ctx.getChild(0).getChild(ctx.getChild(0).getChildCount()-1)===tokenDict['RightBrace']){
-                throw new Error("nested varDeclaration of enumeration constant not supported!")
-            }
-            this.Name = ctx.getChild(0).getChild(1).getText();
-        }
-    }else if(ctx.getChild(0).ruleIndex===ruleDict['RULE_typedefName']){//自定义类型
-
-    }else{//基本类型
-        switch (ctx.getText()){
-            case "unsigned":
-                if(this.Signed===true)throw new Error("signed or not signed?");
-                else this.Signed = false;
-                break;
-            case "signed":
-                if(this.Signed===false)throw new Error("signed or not signed?");
-                else this.Signed = true;
-                break;
-            default:
-                if(this.Type!==undefined)throw new Error("conflicting type: "+ctx.getText());
-                else this.Type = ctx.getText();
-                break;
-        }
-    }
-}
-/**
- * 给当前的struct/Union中被声明的东西添加一个Qualifier
- * @param ctx 新加入的typeQualifier
- * */
-StructUnionDeclaration.prototype.addTypeQualifier = function(ctx){
-    if(ctx.getText()==="const")this.IsConstant = true;
-}
-/**
- * 给当前的成员声明添加一个declarator
- * */
-StructUnionDeclaration.prototype.newDeclarator = function(){
-    this.CurrentDeclarator = new VariableDeclarator();
-}
-/**
- * 导出当前的declarator，并且把前面的声明什么的也加上，生成一个符号表表项
- * */
-StructUnionDeclaration.prototype.exportDeclarator = function(){
-    let result = new VariableDecl();
-    result.IsConstant = this.IsConstant;
-    result.IsStatic = false;
-    result.ArrayDimension = this.CurrentDeclarator.ArraySize;
-    result.ConstantPointer = this.CurrentDeclarator.ConstantPointer;
-    result.Type = this.Type;
-    result.Name = this.Name;
-    result.Signed = this.Signed;
-    result.Identifier = this.CurrentDeclarator.Identifier;
-    return result;
-}
-exports.StructDeclaration = StructUnionDeclaration
-},{"../Symbols/VariableDecl":10,"../common/CToken":58,"../common/Contexts":59,"./VariableDeclarator":62}],62:[function(require,module,exports){
 const Declaration = require("./Declaration").VariableDeclaration;
 /**
  * 用来记录一个declarator相关的情况，比如每一级的指针是不是常数，以及数组一共有多少维
@@ -24481,6 +24398,6 @@ VariableDeclarator.prototype.toString = function(){
 }
 
 exports.VariableDeclarator = VariableDeclarator;
-},{"./Declaration":60}],63:[function(require,module,exports){
+},{"./Declaration":60}],62:[function(require,module,exports){
 
 },{}]},{},[5]);

@@ -28,19 +28,20 @@ var VariableDeclaration = require("./varDeclaration/Declaration").VariableDeclar
 var VariableDeclarator = require("./varDeclaration/VariableDeclarator").VariableDeclarator
 var Dict = require("./common/Contexts").ContextDict
 var Tokens = require("./common/CToken").Tokens
-var StructDeclaration = require("./varDeclaration/StructUnionDeclaration").StructDeclaration
 const SymbolTable = require("./Symbols/SymbolTable").SymbolTable
 
 // This class defines a complete listener for a parse tree produced by CParser.
 function MyCustomListener() {
     CListener.call(this);
+    this.DeclarationStack = [];
+    this.DeclaratorStack = [];
+    this.SymbolTableStack = [];
     this.SymbolTableStack.push(new SymbolTable());
     return this;
 }
 
 MyCustomListener.prototype = Object.create(CListener.prototype);
 MyCustomListener.prototype.constructor = MyCustomListener;
-MyCustomListener.prototype.SymbolTable = new SymbolTable();
 MyCustomListener.prototype.DeclarationStack = [];//用来记录各种各样的declaration
 MyCustomListener.prototype.DeclaratorStack = [];//用来记录各种各样的declarator
 MyCustomListener.prototype.SymbolTableStack = [];//栈式符号表
@@ -247,7 +248,7 @@ MyCustomListener.prototype.enterDeclaration = function(ctx) {
 MyCustomListener.prototype.exitDeclaration = function(ctx) {
     let current_declaration = this.DeclarationStack.pop();
     if(current_declaration.Name!=="*"&&current_declaration.Name!==undefined)current_declaration.exportDeclaration(this.SymbolTableStack.peekLast());
-    document.getElementById("table").innerHTML+=this.SymbolTableStack.peekLast()+"<br>";
+    //document.getElementById("table").innerHTML+=this.SymbolTableStack.peekLast()+"<br>";
 };
 
 
@@ -299,7 +300,7 @@ MyCustomListener.prototype.exitInitDeclarator = function(ctx) {
     let current_declaration = this.DeclarationStack.peekLast();
     let declarator = current_declaration.exportDeclarator(this.SymbolTableStack.peekLast());
     this.DeclaratorStack.pop();
-    document.getElementById("output").innerHTML+= declarator+"<br>"
+    document.getElementById("output").innerHTML+= declarator.Members+"<br>"
 };
 
 

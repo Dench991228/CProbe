@@ -141,6 +141,8 @@ Declaration.prototype.exportDeclarator = function(table){
     entry.ArrayDimension = this.CurrentDeclarator.ArraySize;
     entry.ConstantPointer = this.CurrentDeclarator.ConstantPointer;
     entry.Identifier = this.CurrentDeclarator.Identifier;
+    entry.Members = this.StructMember;
+    console.log(this.StructMember);
     table.addSymbol(entry.Identifier, entry);
     return entry;
 }
