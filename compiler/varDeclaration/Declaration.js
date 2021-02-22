@@ -29,7 +29,7 @@ Declaration.prototype.IsConstant = false;//是不是常量，用来对付const
 Declaration.prototype.Enumerators = undefined;//key是enumerator constant，value是是否完成了初始化
 Declaration.prototype.IsInnerDeclaration = false;//enumeration或者struct是不是新声明的
 Declaration.prototype.StructDecl = undefined;//用来记录正在声明的struct的信息
-Declaration.prototype.StructMember = {};//用来记录struct/union的成员信息
+Declaration.prototype.StructMember = undefined;//用来记录struct/union的成员信息
 /*被声明的东西*/
 Declaration.prototype.CurrentDeclarator = undefined;//记录当前正在被声明的Declarator
 Declaration.prototype.ExportEntry = function(){//把当前的声明导出成一个符号表表项
@@ -142,7 +142,6 @@ Declaration.prototype.exportDeclarator = function(table){
     entry.ConstantPointer = this.CurrentDeclarator.ConstantPointer;
     entry.Identifier = this.CurrentDeclarator.Identifier;
     entry.Members = this.StructMember;
-    console.log(this.StructMember);
     table.addSymbol(entry.Identifier, entry);
     return entry;
 }

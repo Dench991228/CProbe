@@ -11,8 +11,8 @@ function VariableDecl(){
     this.Type = undefined;
     this.Value = undefined;
     this.Initialized = false;
-    this.Members = new SymbolTable();
-    this.Params = new SymbolTable();
+    this.Members = undefined;
+    this.Params = undefined;
     return this;
 }
 VariableDecl.prototype.ConstantPointer = [];//用来记录指针相关的信息

@@ -248,7 +248,7 @@ MyCustomListener.prototype.enterDeclaration = function(ctx) {
 MyCustomListener.prototype.exitDeclaration = function(ctx) {
     let current_declaration = this.DeclarationStack.pop();
     if(current_declaration.Name!=="*"&&current_declaration.Name!==undefined)current_declaration.exportDeclaration(this.SymbolTableStack.peekLast());
-    //document.getElementById("table").innerHTML+=this.SymbolTableStack.peekLast()+"<br>";
+    document.getElementById("table").innerHTML+=this.SymbolTableStack.peekLast()+"<br>";
 };
 
 
@@ -300,7 +300,8 @@ MyCustomListener.prototype.exitInitDeclarator = function(ctx) {
     let current_declaration = this.DeclarationStack.peekLast();
     let declarator = current_declaration.exportDeclarator(this.SymbolTableStack.peekLast());
     this.DeclaratorStack.pop();
-    document.getElementById("output").innerHTML+= declarator.Members+"<br>"
+    console.log(declarator);
+    document.getElementById("output").innerHTML+= declarator+"<br>"
 };
 
 
@@ -453,8 +454,7 @@ MyCustomListener.prototype.enterStructDeclarator = function(ctx) {
  * */
 MyCustomListener.prototype.exitStructDeclarator = function(ctx) {
     let current_declaration = this.DeclarationStack.peekLast();
-    let declarator = current_declaration.exportDeclarator(this.SymbolTableStack.peekLast());
-    current_declaration.StructMember[declarator.Identifier] = declarator;
+    current_declaration.exportDeclarator(this.SymbolTableStack.peekLast());
     this.DeclaratorStack.pop();
 };
 
