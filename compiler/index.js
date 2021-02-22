@@ -10846,7 +10846,8 @@ const SymbolTable = require("./Symbols/SymbolTable").SymbolTable
 
 // This class defines a complete listener for a parse tree produced by CParser.
 function MyCustomListener() {
-    CListener.call(this)
+    CListener.call(this);
+    this.SymbolTableStack.push(new SymbolTable());
     return this;
 }
 
@@ -10855,6 +10856,7 @@ MyCustomListener.prototype.constructor = MyCustomListener;
 MyCustomListener.prototype.SymbolTable = new SymbolTable();
 MyCustomListener.prototype.DeclarationStack = [];//用来记录各种各样的declaration
 MyCustomListener.prototype.DeclaratorStack = [];//用来记录各种各样的declarator
+MyCustomListener.prototype.SymbolTableStack = [];//栈式符号表
 
 // Enter a parse tree produced by CParser#primaryExpression.
 MyCustomListener.prototype.enterPrimaryExpression = function(ctx) {
@@ -11057,8 +11059,8 @@ MyCustomListener.prototype.enterDeclaration = function(ctx) {
  * */
 MyCustomListener.prototype.exitDeclaration = function(ctx) {
     let current_declaration = this.DeclarationStack.pop();
-    if(current_declaration.Name!=="*"&&current_declaration.Name!==undefined)current_declaration.exportDeclaration(this.SymbolTable);
-    document.getElementById("table").innerHTML+=this.SymbolTable+"<br>";
+    if(current_declaration.Name!=="*"&&current_declaration.Name!==undefined)current_declaration.exportDeclaration(this.SymbolTableStack.peekLast());
+    document.getElementById("table").innerHTML+=this.SymbolTableStack.peekLast()+"<br>";
 };
 
 
@@ -11108,7 +11110,7 @@ MyCustomListener.prototype.enterInitDeclarator = function(ctx) {
 // Exit a parse tree produced by CParser#initDeclarator.
 MyCustomListener.prototype.exitInitDeclarator = function(ctx) {
     let current_declaration = this.DeclarationStack.peekLast();
-    let declarator = current_declaration.exportDeclarator(this.SymbolTable);
+    let declarator = current_declaration.exportDeclarator(this.SymbolTableStack.peekLast());
     this.DeclaratorStack.pop();
     document.getElementById("output").innerHTML+= declarator+"<br>"
 };
@@ -11179,13 +11181,15 @@ MyCustomListener.prototype.exitTypeDefSpecifier = function(ctx) {
  * 仅在非声明structOrUnion过程中有用
  * */
 MyCustomListener.prototype.enterStructOrUnionSpecifier = function(ctx) {
+    this.SymbolTableStack.push(new SymbolTable());
 };
 
 // Exit a parse tree produced by CParser#structOrUnionSpecifier.
 /**
- * 离开了structOrUnion的声明，此时应该把IsDeclaration改成false
+ * 离开了structOrUnion的声明，弹出一个符号表
  * */
 MyCustomListener.prototype.exitStructOrUnionSpecifier = function(ctx) {
+    this.DeclarationStack.peekLast().StructMember = this.SymbolTableStack.pop();
 };
 
 
@@ -11203,16 +11207,10 @@ MyCustomListener.prototype.exitStructOrUnion = function(ctx) {
  * 进入structDeclarationList，创建新的符号表
  * */
 MyCustomListener.prototype.enterStructDeclarationList = function(ctx) {
-    this.SymbolTable = this.SymbolTable.newField();
 };
 
 // Exit a parse tree produced by CParser#structDeclarationList.
 MyCustomListener.prototype.exitStructDeclarationList = function(ctx) {
-    let current_table = this.SymbolTable;
-    this.SymbolTable = this.SymbolTable.fatherTable;
-    console.log(current_table);
-    this.DeclarationStack.peekLast().StructMember = current_table;
-
 };
 
 
@@ -11223,15 +11221,12 @@ MyCustomListener.prototype.exitStructDeclarationList = function(ctx) {
 MyCustomListener.prototype.enterStructDeclaration = function(ctx) {
     let new_declaration = new VariableDeclaration();
     this.DeclarationStack.push(new_declaration);
-    console.log("length of stack: "+this.DeclarationStack.length);
 };
 
 // Exit a parse tree produced by CParser#structDeclaration.
 MyCustomListener.prototype.exitStructDeclaration = function(ctx) {
-    console.log("length of stack: "+this.DeclarationStack.length);
     let current_declaration = this.DeclarationStack.pop();
-    console.log(current_declaration);
-    current_declaration.exportDeclaration(this.SymbolTable);
+    current_declaration.exportDeclaration(this.SymbolTableStack.peekLast());
 };
 
 
@@ -11270,7 +11265,7 @@ MyCustomListener.prototype.enterStructDeclarator = function(ctx) {
  * */
 MyCustomListener.prototype.exitStructDeclarator = function(ctx) {
     let current_declaration = this.DeclarationStack.peekLast();
-    let declarator = current_declaration.exportDeclarator(this.SymbolTable);
+    let declarator = current_declaration.exportDeclarator(this.SymbolTableStack.peekLast());
     current_declaration.StructMember[declarator.Identifier] = declarator;
     this.DeclaratorStack.pop();
 };
@@ -11355,7 +11350,7 @@ MyCustomListener.prototype.enterTypeQualifier = function(ctx) {
 
 // Exit a parse tree produced by CParser#typeQualifier.
 MyCustomListener.prototype.exitTypeQualifier = function(ctx) {
-    this.CurrentDeclaration.addTypeQualifier(ctx);
+    this.DeclarationStack.peekLast().addTypeQualifier(ctx);
 };
 
 
@@ -11783,14 +11778,14 @@ SymbolEntry.prototype.Identifier = undefined;//这个表项的identifier
 exports.SymbolEntry = SymbolEntry;
 },{"./StructUnionDecl":7,"./VariableDecl":10}],9:[function(require,module,exports){
 function SymbolTable(){
-    this.fatherTable = null;// symbol table of higher level
     this.fields = [];// fields in this level of symbol table，因为是列表，所以可以比较方便的获得偏移量相关的信息
     this.index = {};//索引，key是identifier，value是fields中的下标
     return this
 }
 
 SymbolTable.prototype.fatherTable = undefined;
-SymbolTable.prototype.fields = {};//key 是identifier, value是entry
+SymbolTable.prototype.fields = [];//entry的数组
+SymbolTable.prototype.index = {};
 /**
  * 在符号表中添加一个新的表项
  * @param identifier 表项对应的identifier
@@ -11802,14 +11797,6 @@ SymbolTable.prototype.addSymbol = function(identifier, entry){
     }
     this.fields.push(entry);
     this.index[identifier] = this.fields.length-1;
-}
-/**
- * 进入新的作用域的时候，使用这个方法获得一张新的符号表
- * */
-SymbolTable.prototype.newField = function(){
-    let new_table = new SymbolTable();
-    new_table.fatherTable = this;
-    return new_table;
 }
 exports.SymbolTable = SymbolTable;
 },{}],10:[function(require,module,exports){

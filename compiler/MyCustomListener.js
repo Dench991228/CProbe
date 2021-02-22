@@ -33,7 +33,8 @@ const SymbolTable = require("./Symbols/SymbolTable").SymbolTable
 
 // This class defines a complete listener for a parse tree produced by CParser.
 function MyCustomListener() {
-    CListener.call(this)
+    CListener.call(this);
+    this.SymbolTableStack.push(new SymbolTable());
     return this;
 }
 
@@ -245,8 +246,8 @@ MyCustomListener.prototype.enterDeclaration = function(ctx) {
  * */
 MyCustomListener.prototype.exitDeclaration = function(ctx) {
     let current_declaration = this.DeclarationStack.pop();
-    if(current_declaration.Name!=="*"&&current_declaration.Name!==undefined)current_declaration.exportDeclaration(this.SymbolTable);
-    document.getElementById("table").innerHTML+=this.SymbolTable+"<br>";
+    if(current_declaration.Name!=="*"&&current_declaration.Name!==undefined)current_declaration.exportDeclaration(this.SymbolTableStack.peekLast());
+    document.getElementById("table").innerHTML+=this.SymbolTableStack.peekLast()+"<br>";
 };
 
 
@@ -296,7 +297,7 @@ MyCustomListener.prototype.enterInitDeclarator = function(ctx) {
 // Exit a parse tree produced by CParser#initDeclarator.
 MyCustomListener.prototype.exitInitDeclarator = function(ctx) {
     let current_declaration = this.DeclarationStack.peekLast();
-    let declarator = current_declaration.exportDeclarator(this.SymbolTable);
+    let declarator = current_declaration.exportDeclarator(this.SymbolTableStack.peekLast());
     this.DeclaratorStack.pop();
     document.getElementById("output").innerHTML+= declarator+"<br>"
 };
@@ -367,13 +368,15 @@ MyCustomListener.prototype.exitTypeDefSpecifier = function(ctx) {
  * 仅在非声明structOrUnion过程中有用
  * */
 MyCustomListener.prototype.enterStructOrUnionSpecifier = function(ctx) {
+    this.SymbolTableStack.push(new SymbolTable());
 };
 
 // Exit a parse tree produced by CParser#structOrUnionSpecifier.
 /**
- * 离开了structOrUnion的声明，此时应该把IsDeclaration改成false
+ * 离开了structOrUnion的声明，弹出一个符号表
  * */
 MyCustomListener.prototype.exitStructOrUnionSpecifier = function(ctx) {
+    this.DeclarationStack.peekLast().StructMember = this.SymbolTableStack.pop();
 };
 
 
@@ -391,15 +394,10 @@ MyCustomListener.prototype.exitStructOrUnion = function(ctx) {
  * 进入structDeclarationList，创建新的符号表
  * */
 MyCustomListener.prototype.enterStructDeclarationList = function(ctx) {
-    this.SymbolTable = this.SymbolTable.newField();
 };
 
 // Exit a parse tree produced by CParser#structDeclarationList.
 MyCustomListener.prototype.exitStructDeclarationList = function(ctx) {
-    let current_table = this.SymbolTable;
-    this.SymbolTable = this.SymbolTable.fatherTable;
-    console.log(current_table);
-    this.DeclarationStack.peekLast().StructMember = current_table;
 };
 
 
@@ -415,7 +413,7 @@ MyCustomListener.prototype.enterStructDeclaration = function(ctx) {
 // Exit a parse tree produced by CParser#structDeclaration.
 MyCustomListener.prototype.exitStructDeclaration = function(ctx) {
     let current_declaration = this.DeclarationStack.pop();
-    current_declaration.exportDeclaration(this.SymbolTable);
+    current_declaration.exportDeclaration(this.SymbolTableStack.peekLast());
 };
 
 
@@ -454,7 +452,7 @@ MyCustomListener.prototype.enterStructDeclarator = function(ctx) {
  * */
 MyCustomListener.prototype.exitStructDeclarator = function(ctx) {
     let current_declaration = this.DeclarationStack.peekLast();
-    let declarator = current_declaration.exportDeclarator(this.SymbolTable);
+    let declarator = current_declaration.exportDeclarator(this.SymbolTableStack.peekLast());
     current_declaration.StructMember[declarator.Identifier] = declarator;
     this.DeclaratorStack.pop();
 };
@@ -539,7 +537,7 @@ MyCustomListener.prototype.enterTypeQualifier = function(ctx) {
 
 // Exit a parse tree produced by CParser#typeQualifier.
 MyCustomListener.prototype.exitTypeQualifier = function(ctx) {
-    this.CurrentDeclaration.addTypeQualifier(ctx);
+    this.DeclarationStack.peekLast().addTypeQualifier(ctx);
 };
 
 
