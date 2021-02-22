@@ -1,5 +1,5 @@
 const SymbolTable = require("./SymbolTable").SymbolTable;
-const SymbolEntry = require("./SymbolEntry").SymbolEntry
+const SymbolEntry = require("./SymbolEntry").SymbolEntry;
 
 function StructUnionDecl(){
     SymbolEntry.call(this);

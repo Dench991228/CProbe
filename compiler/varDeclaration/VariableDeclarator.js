@@ -5,9 +5,9 @@ const Declaration = require("./Declaration").VariableDeclaration;
 function VariableDeclarator(){
     this.Identifier = undefined;
     this.ArraySize = 0;
-    this.ConstantPointer = [];
+    this.ConstantPointer = undefined;
     this.Type = "variable";
-    this.Params = [];
+    this.Params = undefined;
     this.CurrentParamDecl = new Declaration();
     return this;
 }
@@ -24,7 +24,8 @@ VariableDeclarator.prototype.CurrentParamDecl = undefined;//用来记录当前�
  * @param isConstant 新加进来的一级指针是不是常数指针
  * */
 VariableDeclarator.prototype.addPointer = function(isConstant){
-    this.ConstantPointer.push(isConstant)
+    if(this.ConstantPointer===undefined)this.ConstantPointer = [];
+    this.ConstantPointer.push(isConstant);
 }
 
 VariableDeclarator.prototype.toString = function(){
