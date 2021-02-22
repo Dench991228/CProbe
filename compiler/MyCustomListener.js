@@ -42,6 +42,7 @@ MyCustomListener.prototype.constructor = MyCustomListener;
 MyCustomListener.prototype.SymbolTable = new SymbolTable();
 MyCustomListener.prototype.DeclarationStack = [];//用来记录各种各样的declaration
 MyCustomListener.prototype.DeclaratorStack = [];//用来记录各种各样的declarator
+MyCustomListener.prototype.SymbolTableStack = [];//栈式符号表
 
 // Enter a parse tree produced by CParser#primaryExpression.
 MyCustomListener.prototype.enterPrimaryExpression = function(ctx) {
@@ -246,7 +247,6 @@ MyCustomListener.prototype.exitDeclaration = function(ctx) {
     let current_declaration = this.DeclarationStack.pop();
     if(current_declaration.Name!=="*"&&current_declaration.Name!==undefined)current_declaration.exportDeclaration(this.SymbolTable);
     document.getElementById("table").innerHTML+=this.SymbolTable+"<br>";
-    let count_child = ctx.getChildCount();
 };
 
 
@@ -398,6 +398,7 @@ MyCustomListener.prototype.enterStructDeclarationList = function(ctx) {
 MyCustomListener.prototype.exitStructDeclarationList = function(ctx) {
     let current_table = this.SymbolTable;
     this.SymbolTable = this.SymbolTable.fatherTable;
+    console.log(current_table);
     this.DeclarationStack.peekLast().StructMember = current_table;
 };
 
@@ -455,6 +456,7 @@ MyCustomListener.prototype.exitStructDeclarator = function(ctx) {
     let current_declaration = this.DeclarationStack.peekLast();
     let declarator = current_declaration.exportDeclarator(this.SymbolTable);
     current_declaration.StructMember[declarator.Identifier] = declarator;
+    this.DeclaratorStack.pop();
 };
 
 

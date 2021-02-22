@@ -1,7 +1,7 @@
 const SymbolTable = require("./SymbolTable").SymbolTable;
-const SymbolEntry = require("./SymbolEntry").SymbolEntry;
 
 function StructUnionDecl(){
+    let SymbolEntry = require("./SymbolEntry").SymbolEntry;
     SymbolEntry.call(this);
     this.StructTable = new SymbolTable();
     return this;

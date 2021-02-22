@@ -11059,7 +11059,6 @@ MyCustomListener.prototype.exitDeclaration = function(ctx) {
     let current_declaration = this.DeclarationStack.pop();
     if(current_declaration.Name!=="*"&&current_declaration.Name!==undefined)current_declaration.exportDeclaration(this.SymbolTable);
     document.getElementById("table").innerHTML+=this.SymbolTable+"<br>";
-    let count_child = ctx.getChildCount();
 };
 
 
@@ -11211,7 +11210,9 @@ MyCustomListener.prototype.enterStructDeclarationList = function(ctx) {
 MyCustomListener.prototype.exitStructDeclarationList = function(ctx) {
     let current_table = this.SymbolTable;
     this.SymbolTable = this.SymbolTable.fatherTable;
+    console.log(current_table);
     this.DeclarationStack.peekLast().StructMember = current_table;
+
 };
 
 
@@ -11222,11 +11223,14 @@ MyCustomListener.prototype.exitStructDeclarationList = function(ctx) {
 MyCustomListener.prototype.enterStructDeclaration = function(ctx) {
     let new_declaration = new VariableDeclaration();
     this.DeclarationStack.push(new_declaration);
+    console.log("length of stack: "+this.DeclarationStack.length);
 };
 
 // Exit a parse tree produced by CParser#structDeclaration.
 MyCustomListener.prototype.exitStructDeclaration = function(ctx) {
+    console.log("length of stack: "+this.DeclarationStack.length);
     let current_declaration = this.DeclarationStack.pop();
+    console.log(current_declaration);
     current_declaration.exportDeclaration(this.SymbolTable);
 };
 
@@ -11268,6 +11272,7 @@ MyCustomListener.prototype.exitStructDeclarator = function(ctx) {
     let current_declaration = this.DeclarationStack.peekLast();
     let declarator = current_declaration.exportDeclarator(this.SymbolTable);
     current_declaration.StructMember[declarator.Identifier] = declarator;
+    this.DeclaratorStack.pop();
 };
 
 
@@ -11755,9 +11760,9 @@ EnumerationDecl.prototype.Constants = new SymbolTable();//记录这个enumerator
 exports.EnumerationDecl = EnumerationDecl;
 },{"../Symbols/SymbolTable":9,"../Symbols/VariableDecl":10,"./SymbolEntry":8}],7:[function(require,module,exports){
 const SymbolTable = require("./SymbolTable").SymbolTable;
-const SymbolEntry = require("./SymbolEntry").SymbolEntry;
 
 function StructUnionDecl(){
+    let SymbolEntry = require("./SymbolEntry").SymbolEntry;
     SymbolEntry.call(this);
     this.StructTable = new SymbolTable();
     return this;
@@ -24278,11 +24283,8 @@ Declaration.prototype.addTypeSpecifier = function(ctx){
         this.addBasicTypeSpecifier(ctx);
     }else{//enum, struct/union
         if(this.Type!==undefined) throw new Error("type conflicting current type: "+this.Type);
-        console.log(ctx.getChild(0).getChild(1).getText());
         this.Type = ctx.getChild(0).getChild(0).getText();
-        console.log(ctx.getChild(0).getChild(1));
         if(ctx.getChild(0).getChild(1).symbol.type === Tokens['Identifier']){//有名字
-            console.log("hello");
             this.Name = ctx.getChild(0).getChild(1).getText();
         }else{//匿名
             this.Name = "*";
@@ -24355,10 +24357,10 @@ Declaration.prototype.exportDeclaration = function(table){
             return enumDecl;
         case "union":
         case "struct":
-            let varDecl = new EnumerationDecl();
             let structDecl = new StructUnionDecl();
-            for( let identifier in this.StructMember.fields){
-                structDecl.StructTable.addSymbol(identifier, this.StructMember[identifier]);
+            for( let identifier in this.StructMember.index){
+                let pos = this.StructMember.index[identifier];
+                structDecl.StructTable.addSymbol(identifier, this.StructMember.fields[pos]);
             }
             structDecl.Identifier = this.Name;
             structDecl.Type = this.Type;

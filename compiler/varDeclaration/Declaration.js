@@ -163,10 +163,10 @@ Declaration.prototype.exportDeclaration = function(table){
             return enumDecl;
         case "union":
         case "struct":
-            let varDecl = new EnumerationDecl();
             let structDecl = new StructUnionDecl();
-            for( let identifier in this.StructMember.fields){
-                structDecl.StructTable.addSymbol(identifier, this.StructMember[identifier]);
+            for( let identifier in this.StructMember.index){
+                let pos = this.StructMember.index[identifier];
+                structDecl.StructTable.addSymbol(identifier, this.StructMember.fields[pos]);
             }
             structDecl.Identifier = this.Name;
             structDecl.Type = this.Type;
