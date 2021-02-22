@@ -247,7 +247,12 @@ MyCustomListener.prototype.enterDeclaration = function(ctx) {
  * */
 MyCustomListener.prototype.exitDeclaration = function(ctx) {
     let current_declaration = this.DeclarationStack.pop();
-    if(current_declaration.Name!=="*"&&current_declaration.Name!==undefined)current_declaration.exportDeclaration(this.SymbolTableStack.peekLast());
+    console.log("inner declaration: "+current_declaration.HasInnerDeclaration);
+    if(current_declaration.Type==="struct"||current_declaration.Type==="enum"&&current_declaration.Name!=="*"&&current_declaration.Name!==undefined&&current_declaration.HasInnerDeclaration){
+        current_declaration.exportDeclaration(this.SymbolTableStack.peekLast());
+    }else if(current_declaration.Type==="enum"&&current_declaration.Name!==undefined&&current_declaration.HasInnerDeclaration){
+        current_declaration.exportDeclaration(this.SymbolTableStack.peekLast());
+    }
     document.getElementById("table").innerHTML+=this.SymbolTableStack.peekLast()+"<br>";
 };
 
@@ -343,7 +348,7 @@ MyCustomListener.prototype.exitStructUnionSpecifier = function(ctx) {
 
 // Enter a parse tree produced by CParser#EnumerationSpecifier.
 MyCustomListener.prototype.enterEnumerationSpecifier = function(ctx) {
-    let current_declaration = this.DeclaratorStack.peekLast();
+    let current_declaration = this.DeclarationStack.peekLast();
     current_declaration.addTypeSpecifier(ctx);
 };
 
@@ -396,6 +401,7 @@ MyCustomListener.prototype.exitStructOrUnion = function(ctx) {
  * 进入structDeclarationList，创建新的符号表
  * */
 MyCustomListener.prototype.enterStructDeclarationList = function(ctx) {
+    this.DeclarationStack.peekLast().HasInnerDeclaration = true;
 };
 
 // Exit a parse tree produced by CParser#structDeclarationList.
@@ -461,6 +467,22 @@ MyCustomListener.prototype.exitStructDeclarator = function(ctx) {
 
 // Enter a parse tree produced by CParser#enumSpecifier.
 MyCustomListener.prototype.enterEnumSpecifier = function(ctx) {
+    let current_declaration = this.DeclarationStack.peekLast();
+    current_declaration.Type="enum";
+    console.log(ctx.getText());
+    if(ctx.getChild(ctx.getChildCount()-1).symbol.type===Tokens.RightBrace){//新声明的enum
+        if(ctx.getChild(1).symbol.type===Tokens.Identifier){//具名的，需要导出
+            current_declaration.Name = ctx.getChild(1).getText();
+            console.log("name of enum: "+current_declaration.Name);
+            current_declaration.HasInnerDeclaration = true;
+        }else{//匿名的，不需要导出到符号表
+            current_declaration.Name = "*";
+            current_declaration.HasInnerDeclaration = true;
+        }
+    }else{//具名的，但是没有名字
+        current_declaration.Name = ctx.getChild(1).getText();
+        current_declaration.HasInnerDeclaration = false;
+    }
 };
 
 // Exit a parse tree produced by CParser#enumSpecifier.
@@ -469,15 +491,6 @@ MyCustomListener.prototype.enterEnumSpecifier = function(ctx) {
  * 仅在非声明struct的过程中有用
  * */
 MyCustomListener.prototype.exitEnumSpecifier = function(ctx) {
-    if(this.CurrentDeclaration.IsInnerDeclaration)return;
-    this.CurrentDeclaration.Type="enum";
-    if(ctx.getChild(1).symbol.type===Tokens.Identifier){//中间是一个identifier
-        this.CurrentDeclaration.Name = ctx.getChild(1).getText();
-    }else{//匿名enum
-        this.CurrentDeclaration.Name = "*";
-        this.CurrentDeclaration.IsInnerDeclaration = false;
-    }
-    this.CurrentDeclaration.IsInnerDeclaration = false;
 };
 
 
@@ -506,10 +519,11 @@ MyCustomListener.prototype.enterEnumerator = function(ctx) {
  * */
 MyCustomListener.prototype.exitEnumerator = function(ctx) {
     let enumerator = ctx.getChild(0).getText();
-    if(enumerator in this.CurrentDeclaration.Enumerators){
+    let current_declaration = this.DeclarationStack.peekLast();
+    if(enumerator in current_declaration.Enumerators){
         throw new Error(enumerator+" has already been declared in this enumerator");
     }else{
-        this.CurrentDeclaration.Enumerators[enumerator] = ctx.getChildCount() !== 1;
+        current_declaration.Enumerators[enumerator] = ctx.getChildCount() !== 1;
     }
 };
 

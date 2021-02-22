@@ -14,7 +14,7 @@ function Declaration(){
     this.CurrentDeclarator = undefined;
     this.Type = undefined;
     this.Enumerators = {};
-    this.IsInnerDeclaration = false;
+    this.HasInnerDeclaration = false;
     this.StructDecl = undefined;
     this.StructMember = new SymbolTable();
     return this;
@@ -27,7 +27,7 @@ Declaration.prototype.Name = undefined;//如果不是基本类型，这里对应
 Declaration.prototype.Signed = undefined;
 Declaration.prototype.IsConstant = false;//是不是常量，用来对付const
 Declaration.prototype.Enumerators = undefined;//key是enumerator constant，value是是否完成了初始化
-Declaration.prototype.IsInnerDeclaration = false;//enumeration或者struct是不是新声明的
+Declaration.prototype.HasInnerDeclaration = false;//enumeration或者struct是不是新声明的
 Declaration.prototype.StructDecl = undefined;//用来记录正在声明的struct的信息
 Declaration.prototype.StructMember = undefined;//用来记录struct/union的成员信息
 /*被声明的东西*/
@@ -130,6 +130,7 @@ Declaration.prototype.toString = function(ctx){
 }
 /**
  * 导出当前的declarator，并且加入符号表中
+ * TODO 如果不是匿名struct，要想办法把members搞过来
  * */
 Declaration.prototype.exportDeclarator = function(table){
     let entry = new VariableDecl();
@@ -155,6 +156,7 @@ Declaration.prototype.exportDeclaration = function(table){
         case "enum":
             let enumDecl = new EnumerationDecl();
             enumDecl.Identifier = this.Name;
+            console.log("exporting enumeration: "+this.Enumerators);
             for(let constant in this.Enumerators){
                 let entry = EnumerationDecl.enumConstantEntry(constant, this.Enumerators[constant])
                 enumDecl.Constants.addSymbol(constant, entry);
