@@ -569,12 +569,13 @@ MyCustomListener.prototype.exitDirectDeclarator = function(ctx) {
     let length = ctx.getChildCount();
     let declarator = this.CurrentDeclaration.IsInnerDeclaration&&this.CurrentDeclaration.Type==="struct"?this.CurrentDeclaration.StructDecl.CurrentDeclarator:this.CurrentDeclaration.CurrentDeclarator
     if(length===1){//产生了一个标识符的情况
-        declarator.Identifier = ctx.getText();
+        //declarator.Identifier = ctx.getText();
     }else if(ctx.getChild(length-1).symbol.type===Tokens['RightBracket']){//声明数组的情况，这种情况下需要增加数组的维度
         declarator.ArraySize += 1;
-    }else if(ctx.getChild(length-1).symbol.type===Tokens['RightParen']){//声明函数的情况
+    }else if(ctx.getChild(length-1).symbol.type===Tokens['RightParen']){//声明函数或者函数指针的情况
 
     }
+    console.log("direct declarator: "+ctx.getText());
 };
 
 
@@ -670,6 +671,7 @@ MyCustomListener.prototype.enterDirectAbstractDeclarator = function(ctx) {
 
 // Exit a parse tree produced by CParser#directAbstractDeclarator.
 MyCustomListener.prototype.exitDirectAbstractDeclarator = function(ctx) {
+    console.log("direct abstract declarator: "+ctx.getText());
 };
 
 

@@ -1,3 +1,4 @@
+const Declaration = require("./Declaration").VariableDeclaration;
 /**
  * 用来记录一个declarator相关的情况，比如每一级的指针是不是常数，以及数组一共有多少维
  * */
@@ -6,6 +7,8 @@ function VariableDeclarator(){
     this.ArraySize = 0;
     this.ConstantPointer = [];
     this.Type = "variable";
+    this.Params = [];
+    this.CurrentParamDecl = new Declaration();
     return this;
 }
 
@@ -13,6 +16,8 @@ VariableDeclarator.prototype.Identifier = undefined;//主要用来跟踪这个de
 VariableDeclarator.prototype.ArraySize = 0;//用来跟踪数组的大小
 VariableDeclarator.prototype.ConstantPointer = [];//用来跟踪每一级的指针是不是常量，如果是的话就是一个true否则是false
 VariableDeclarator.prototype.Type = "variable";//用来记录类型，包括variable,array,function,typedef
+VariableDeclarator.prototype.Params = [];//这个declarator的参数列表，里面装的是Symbol Entry
+VariableDeclarator.prototype.CurrentParamDecl = undefined;//用来记录当前正在被声明的参数
 
 /**
  * 给当前正在被声明的对象添加一级指针
