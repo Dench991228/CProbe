@@ -43,9 +43,18 @@ var loc = 0;//loc指针
 var arg = 0;//arg指针
 
 var funlist = new Array()
-funlist[0] = { locNum: 0, argNum: 0, retNum: 0, ip: 0 }//funlist[id].argNum + funlist[id].retNum + funlist[id].locNum + funlist[optnum].ip
-funlist[1] = { locNum: 0, argNum: 0, retNum: 1, ip: 3 }//funlist[id].argNum + funlist[id].retNum + funlist[id].locNum + funlist[optnum].ip
-funlist[2] = { locNum: 1, argNum: 0, retNum: 1, ip: 7 }//funlist[id].argNum + funlist[id].retNum + funlist[id].locNum + funlist[optnum].ip
+//funlist[0] = { locNum: 0, argNum: 0, retNum: 0, ip: 0 }//funlist[id].argNum + funlist[id].retNum + funlist[id].locNum + funlist[optnum].ip
+//funlist[1] = { locNum: 0, argNum: 0, retNum: 1, ip: 3 }//funlist[id].argNum + funlist[id].retNum + funlist[id].locNum + funlist[optnum].ip
+//funlist[2] = { locNum: 1, argNum: 0, retNum: 1, ip: 7 }//funlist[id].argNum + funlist[id].retNum + funlist[id].locNum + funlist[optnum].ip
+
+function runAll(codeList,functionList,globalList){
+    code = codeList
+    funlist = functionList
+    globalSpace = globalList
+    while (code[ip].opt != "exit") {
+        run();
+    }
+}
 
 function printStack(){
     var l = stack.length
@@ -176,7 +185,7 @@ function run(){
         let temp, stemp //临时变量
         switch (opt){
             case "nop":  
-                return
+                ip += 1
                 break;
             case "push":
                 var num = optnum
@@ -202,6 +211,7 @@ function run(){
                 temp = popNum()
                 pushNum(temp)
                 pushNum(temp)
+                ip += 1
                 break;
             case "loca":  
                 temp = loc - 8*optnum 
@@ -308,29 +318,39 @@ function run(){
                 pushNum(result)
                 ip += 1
                 break;
-            case "add.f":  
-                pushNum(HexToFloat(popBytes()) + HexToFloat(popBytes()))
+            case "add.f": 
+                right = popBytes()
+                left = popBytes()
+                pushNum(SingleToHex(HexToFloat(left) + HexToFloat(right)))
+                // pushNum(HexToFloat(popBytes()) + HexToFloat(popBytes()))
                 ip += 1
                 break;
             case "sub.f":  
-                right = HexToFloat(popBytes())
-                left = HexToFloat(popBytes())
-                pushNum(left - right)
+                right = popBytes()
+                left = popBytes()
+                pushNum(SingleToHex(HexToFloat(left) - HexToFloat(right)))
                 ip += 1
                 break;
             case "mul.f":  
-                pushNum(HexToFloat(popBytes()) * HexToFloat(popBytes()))
+                pushNum(SingleToHex(HexToFloat(popBytes()) * HexToFloat(popBytes())))
                 ip += 1
                 break;
             case "div.f":  
                 right = HexToFloat(popBytes())
                 left = HexToFloat(popBytes())
-                pushNum(left / right)
+                var result = left / right
+                console.log(right)
+                console.log(left)
+                console.log(result)
+                pushNum(SingleToHex(result))
                 ip += 1
                 break;
             case "div.u":  
                 right = BigInt(popNum() >>> 0)
                 left = BigInt(popNum() >>> 0)
+                console.log(right)
+                console.log(left)
+                console.log(left / right)
                 pushNum(left / right)
                 ip += 1
                 break;
@@ -359,7 +379,15 @@ function run(){
                 ip += 1
                 break;
             case "not":  
-                pushNum(!BigInt(popNum()))
+                temp = popNum()
+                res = ~ temp
+                if (res < 0) {
+                    res = 0xffffffff + res + 1
+                }
+                else if (res > 0xffffffff) {
+                    res = Number(res) - 0xffffffff
+                }
+                pushNum(res)
                 ip += 1
                 break;
             case "cmp.i":  
@@ -367,7 +395,7 @@ function run(){
                 left = popNum()
                 right_fu = 0
                 left_fu = 0
-                if(right>0x7fffffff){
+                if(right > 0x7fffffff){
                     right_fu = 1
                     right = 0xffffffff + 1 - right
                 }
@@ -414,13 +442,13 @@ function run(){
                 right = HexToFloat(popBytes())
                 left = HexToFloat(popBytes())
                 if (left > right) {
-                    pushNum(1n)
+                    pushNum(1)
                 }
                 else if (left < right) {
-                    pushNum(-1n)
+                    pushNum(0xffffffff)
                 }
                 else {
-                    pushNum(0n)
+                    pushNum(0)
                 }
                 ip += 1
                 break;
@@ -433,14 +461,22 @@ function run(){
                 ip += 1
                 break;
             case "itof":  
-                pushNum(SingleToHex(popNum()))
+                num = popNum()
+                if (num > 0x7fffffff) {
+                    num = num - (0xffffffff + 1)
+                }
+                pushNum(SingleToHex(num))
                 ip += 1
                 break;
             case "ftoi":
-                temp = popBytes()
-                console.log(temp)
-                console.log(HexToFloat(temp))
-                pushNum(BigInt(parseInt(HexToFloat(temp)))) 
+                num = parseInt(HexToFloat(popBytes()))
+                if (num < 0) {
+                    num = 0xffffffff + num + 1
+                }
+                else if (num > 0xffffffff) {
+                    num = Number(num) - 0xffffffff
+                }
+                pushNum(num) 
                 ip += 1
                 break;
             case "shrl":  
@@ -451,7 +487,7 @@ function run(){
                 break;
             case "set.lt":
                 temp = popNum()
-                if(temp<0)
+                if(temp>0x7fffffff)
                     pushNum(1)
                 else
                     pushNum(0)
@@ -459,7 +495,7 @@ function run(){
                 break;
             case "set.gt":
                 temp = popNum()
-                if(temp>0)
+                if(temp<=0x7fffffff)
                     pushNum(1)
                 else
                     pushNum(0)

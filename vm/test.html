@@ -70,12 +70,42 @@
   putNewCode({opt:"ftoi"})  
   putNewCode({opt:"store.64"})
   putNewCode({opt:"ret"})*/
-  putNewCode({opt:"push",num:})
-  //putNewCode({opt:"itof"})  
-  putNewCode({opt:"ftoi"}) 
+  putNewCode({opt:"globa",num:0})
+  putNewCode({opt:"push",num:0})
+  putNewCode({opt:"store.64"})  
+  putNewCode({opt:"call",num:1}) 
   putNewCode({opt:"exit"})
-  while(code[ip].opt != "exit"){
-    run(); 
+
+  putNewCode({opt:"arga",num:0})
+  putNewCode({opt:"globa",num:0})
+  putNewCode({opt:"load.64"})  
+  putNewCode({opt:"store.64",num:1}) 
+  putNewCode({opt:"ret"})
+  funlist[0] = { locNum: 0, argNum: 0, retNum: 0, ip: 0 }//funlist[id].argNum + funlist[id].retNum + funlist[id].locNum + funlist[optnum].ip
+  funlist[1] = { locNum: 0, argNum: 0, retNum: 1, ip: 5 }//funlist[id].argNum + funlist[id].retNum + funlist[id].locNum + funlist[optnum].ip
+  //runAll()
+  /*
+  static: 0 0 0 0 0 0 0 0 (`\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}`)
+  static: 6D 61 69 6E (`main`)
+  static: 5F 73 74 61 72 74 (`_start`)
+  fn [2] 0 0 -> 0 {
+      0: GlobA(0)
+      1: Push(0)
+      2: Store64
+      3: StackAlloc(1)
+      4: Call(1)
+      5: PopN(1)
+  }
+  fn [1] 0 0 -> 1 {
+      0: ArgA(0)
+      1: GlobA(0)
+      2: Load64
+      3: Store64
+      4: Ret
+  }
+  */
+  while (code[ip].opt != "exit") {
+      run();
   }
   
 
