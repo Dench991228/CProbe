@@ -248,9 +248,9 @@ MyCustomListener.prototype.enterDeclaration = function(ctx) {
 MyCustomListener.prototype.exitDeclaration = function(ctx) {
     let current_declaration = this.DeclarationStack.pop();
     console.log("inner declaration: "+current_declaration.HasInnerDeclaration);
-    if(current_declaration.Type==="struct"||current_declaration.Type==="enum"&&current_declaration.Name!=="*"&&current_declaration.Name!==undefined&&current_declaration.HasInnerDeclaration){
+    if(current_declaration.Type==="struct"||current_declaration.Type==="union"&&current_declaration.HasInnerDeclaration){
         current_declaration.exportDeclaration(this.SymbolTableStack.peekLast());
-    }else if(current_declaration.Type==="enum"&&current_declaration.Name!==undefined&&current_declaration.HasInnerDeclaration){
+    }else if(current_declaration.Type==="enum"&&current_declaration.HasInnerDeclaration){
         current_declaration.exportDeclaration(this.SymbolTableStack.peekLast());
     }
     document.getElementById("table").innerHTML+=this.SymbolTableStack.peekLast()+"<br>";

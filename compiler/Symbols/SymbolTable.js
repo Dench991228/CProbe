@@ -17,6 +17,6 @@ SymbolTable.prototype.addSymbol = function(identifier, entry){
         throw new Error("identifier already been declared");
     }
     this.fields.push(entry);
-    this.index[identifier] = this.fields.length-1;
+    if(identifier!=="*")this.index[identifier] = this.fields.length-1;
 }
 exports.SymbolTable = SymbolTable;
