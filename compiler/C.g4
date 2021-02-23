@@ -291,7 +291,7 @@ declarator
 directDeclarator
     :   Identifier
     |   '(' declarator ')'
-    |   directDeclarator '[' assignmentExpression? ']'
+    |   directDeclarator '[' constantExpression? ']'
     |   directDeclarator '(' parameterTypeList ')'
     |   directDeclarator '(' identifierList? ')'
     |   Identifier ':' DigitSequence  // bit field
@@ -341,15 +341,9 @@ abstractDeclarator
 
 directAbstractDeclarator
     :   '(' abstractDeclarator ')'
-    |   '[' typeQualifierList? assignmentExpression? ']'
-    |   '[' 'static' typeQualifierList? assignmentExpression ']'
-    |   '[' typeQualifierList 'static' assignmentExpression ']'
-    |   '[' '*' ']'
+    |   '[' constantExpression ']'
     |   '(' parameterTypeList? ')'
-    |   directAbstractDeclarator '[' typeQualifierList? assignmentExpression? ']'
-    |   directAbstractDeclarator '[' 'static' typeQualifierList? assignmentExpression ']'
-    |   directAbstractDeclarator '[' typeQualifierList 'static' assignmentExpression ']'
-    |   directAbstractDeclarator '[' '*' ']'
+    |   directAbstractDeclarator '[' constantExpression ']'
     |   directAbstractDeclarator '(' parameterTypeList? ')'
     ;
 
