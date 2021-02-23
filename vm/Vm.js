@@ -259,9 +259,14 @@ function run(){
                 storeNum(64)
                 ip += 1
                 break;
-            case "alloc":  
+            case "alloc":
+                temp = popNum()
+                let addr = getAllocAddr(temp)
+                pushNum(addr)
                 break;
-            case "free":  
+            case "free":
+                temp = popNum()
+                freeAlloc(temp)
                 break;
             case "stackalloc":
                 for(var i=0;i<optnum;i++){
@@ -809,4 +814,122 @@ function FillString(t, n, b) {
         }
     }
     return t;
+}
+
+
+// 用于alloc
+// 使用首次匹配原则，堆的块结构见计组9.9
+function getAllocAddr(size){
+    let i = 0
+    let temp
+    while (i<heap.length){
+        temp = getAllocBlockSize(i)
+        if(heap[i]==="01"){
+            // 2指每个block的头部和脚部
+            i += 4*(temp+2)
+        }
+        else {
+            if(temp<size){
+                i += 4*(temp+2)
+            }
+            else if(temp<=size+2){
+                heap[i]="01"
+                heap[i+4+4*temp]="01"
+                return hbp+(i+4)
+            }
+            // 将大块分割成小块
+            else {
+                putAllocBlockSize(size, i, 1)
+                putAllocBlockSize(size, i+4*(size+1), 1)
+                putAllocBlockSize(temp-size-2, i+4*(size+2), 0)
+                putAllocBlockSize(temp-size-2, i+4*(temp+1), 0)
+                return hbp+(i+4)
+            }
+        }
+    }
+    // 无可分配的空闲块，在堆的尾部增加新块
+    temp = heap.length
+    let bits = 6
+    heap.push("01")
+    let snum = size.toString(16)
+    if(snum.length>=bits){
+        snum = snum.substr(snum.length-bits)
+    }
+    else {
+        for(let i=bits-snum.length; i>0; i--)
+            snum = "0" + snum
+    }
+    for(i=0; i<bits; i+=2){
+        heap.push(snum.substr(i, 2))
+    }
+    hp += 4
+    for(i=0; i<size*4; i++){
+        heap.push("00")
+        hp++
+    }
+    for(i=0; i<4; i++){
+        heap.push(heap[temp+i])
+    }
+    hp += 4
+    return hbp+(temp+4)
+}
+
+// 根据地址得到块的大小
+function getAllocBlockSize(val){
+    let str = ""+heap[val+1]+heap[val+2]+heap[val+3]
+    return parseInt(str, 16)
+}
+
+// 根据地址和值创建块的头部/脚部
+function putAllocBlockSize(val, addr, flag){
+    let bits = 6
+    if(flag===1){
+        heap[addr] = "01"
+    }
+    else {
+        heap[addr] = "00"
+    }
+    let snum = val.toString(16)
+    if(snum.length>=bits){
+        snum = snum.substr(snum.length-bits)
+    }
+    else {
+        for(let i=bits-snum.length; i>0; i--)
+            snum = "0" + snum
+    }
+    for(i=bits-2, j=3; i>=0; i-=2, j--){
+        heap[addr+j] = (snum.substr(i, 2))
+    }
+    // let str = ""+heap[val+1]+heap[val+2]+heap[val+3]
+    // return parseInt(str, 16)
+}
+
+// 用于free
+function freeAlloc(addr){
+    let temp = addr-hbp, tsize
+    heap[temp-4] = "00"
+    let size = getAllocBlockSize(temp-4)
+    heap[temp+4*size] = "00"
+    // 合并前面的块
+    if((temp-8>0) && (heap[temp-8]==="00")){
+        tsize = getAllocBlockSize(temp-8)
+        putAllocBlockSize(tsize+2+size, temp-8-4*tsize-4, 0)
+        putAllocBlockSize(tsize+2+size, temp+4*size, 0)
+        size = size+tsize+2
+        temp = temp-8-4*tsize
+    }
+    // 合并后面的块
+    if((temp+4*size+4<heap.length) && (heap[temp+4*size+4]==="00")){
+        tsize = getAllocBlockSize(temp+4*size+4)
+        putAllocBlockSize(tsize+2+size, temp-4, 0)
+        putAllocBlockSize(tsize+2+size, temp+4*size+8+4*tsize, 0)
+        size = size+tsize+2
+    }
+    // 弹出最后一个空闲块
+    if((temp+4*size+4>=heap.length) && (heap[temp-4]==="00")){
+        for(i=0; i<4*(size+2); i++){
+            heap.pop()
+            hp--
+        }
+    }
 }
