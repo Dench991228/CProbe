@@ -24331,7 +24331,7 @@ Declaration.prototype.toString = function(ctx){
 Declaration.prototype.exportDeclarator = function(table){
     let entry = new VariableDecl();
     entry.Signed = this.Signed;
-    entry.Type = this.Type;
+    entry.Type = this.Type===undefined?"int":this.Type;
     entry.IsStatic = this.IsStatic;
     entry.IsConstant = this.IsConstant;
     entry.Name = this.Name;
