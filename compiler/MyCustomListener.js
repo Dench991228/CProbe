@@ -576,56 +576,58 @@ MyCustomListener.prototype.exitAlignmentSpecifier = function(ctx) {
 
 // Enter a parse tree produced by CParser#declarator.
 MyCustomListener.prototype.enterDeclarator = function(ctx) {
-};
+    this.DeclaratorStack.peekLast().addDeclarator();
+}
 
 // Exit a parse tree produced by CParser#declarator.
 MyCustomListener.prototype.exitDeclarator = function(ctx) {
+    console.log("declarator: "+ctx.getText());
 };
 
 
 // Enter a parse tree produced by CParser#directDeclarator.
-MyCustomListener.prototype.enterDirectDeclarator = function(ctx) {
-};
-
-// Exit a parse tree produced by CParser#directDeclarator.
 /**
  * 离开一个directDeclarator的情况，现在需要分别考虑普通的声明和struct中的声明
  * TODO 声明函数的情况还没有考虑
  * */
-MyCustomListener.prototype.exitDirectDeclarator = function(ctx) {
+MyCustomListener.prototype.enterDirectDeclarator = function(ctx) {
+    console.log("entering direct declarator: "+ctx.getText());
+    let current_declarator = this.DeclaratorStack.peekLast();
     let length = ctx.getChildCount();
-    let declarator = this.DeclaratorStack.peekLast();
-    if(length===1){//产生了一个标识符的情况
-        declarator.Identifier = ctx.getText();
-    }else if(ctx.getChild(length-1).symbol.type===Tokens['RightBracket']){//声明数组的情况，这种情况下需要增加数组的维度
-        declarator.ArraySize += 1;
-    }else if(ctx.getChild(length-1).symbol.type===Tokens['RightParen']){//声明函数或者函数指针的情况
-
+    if(length === 1){//产生identifier的情况
+        current_declarator.Identifier = ctx.getText();
+    }else if(ctx.getChild(length-1).symbol.type===Tokens.RightBracket){//产生一个数组
+        console.log("constant expression: "+ctx.getChild(length-2).getText());
+        current_declarator.addArrayDimension(ctx.getChild(length-2).getText());
     }
-    console.log("direct declarator: "+ctx.getText());
+};
+
+// Exit a parse tree produced by CParser#directDeclarator.
+MyCustomListener.prototype.exitDirectDeclarator = function(ctx) {
 };
 
 
 // Enter a parse tree produced by CParser#pointer.
-MyCustomListener.prototype.enterPointer = function(ctx) {
-};
-
-// Exit a parse tree produced by CParser#pointer.
 /**
  * 考虑产生指针的各种情况，需要把在struct内和外面分开讨论
  * */
-MyCustomListener.prototype.exitPointer = function(ctx) {
+MyCustomListener.prototype.enterPointer = function(ctx) {
     let count = ctx.getChildCount();
     let declarator = this.DeclaratorStack.peekLast();
-    if(ctx.getChild(count-1).ruleIndex===Dict['RULE_typeQualifierList']){//只要最后一个是QualifierList，就要考虑是不是常量指针
+    console.log("ptr at this level: "+ctx.getText());
+    if(ctx.getChild(count-1).ruleIndex===Dict['RULE_typeQualifierList']){
         if(ctx.getChild(count-1).getText().search("const")!==-1){//包含const
             declarator.addPointer(true);
         }else{
             declarator.addPointer(false);
         }
-    }else{//最后连个QualifierList都没有，显然是非常数指针
+    }else{
         declarator.addPointer(false);
     }
+};
+
+// Exit a parse tree produced by CParser#pointer.
+MyCustomListener.prototype.exitPointer = function(ctx) {
 };
 
 

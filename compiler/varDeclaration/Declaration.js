@@ -133,6 +133,7 @@ Declaration.prototype.toString = function(ctx){
  * TODO 如果不是匿名struct，要想办法把members搞过来
  * */
 Declaration.prototype.exportDeclarator = function(table){
+    console.log("exported as: "+this.CurrentDeclarator.DirectDeclarators);
     let entry = new VariableDecl();
     entry.Signed = this.Signed;
     entry.Type = this.Type===undefined?"int":this.Type;
