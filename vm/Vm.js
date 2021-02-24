@@ -162,7 +162,7 @@ function storeAddress(address, val){
         }
     }
 }
-
+//event CE_silkroad.2
 /**
  * 指令执行模块
  */
@@ -224,7 +224,7 @@ function run(){
                 ip += 1
                 break;
             case "globa":  
-                pushNum(gbp + bp)
+                pushNum(gbp + gp)
                 ip += 1
                 break;
             case "load.8":
