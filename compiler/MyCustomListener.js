@@ -599,6 +599,10 @@ MyCustomListener.prototype.enterDirectDeclarator = function(ctx) {
     }else if(ctx.getChild(length-1).symbol.type===Tokens.RightBracket){//产生一个数组
         console.log("constant expression: "+ctx.getChild(length-2).getText());
         current_declarator.addArrayDimension(ctx.getChild(length-2).getText());
+    }else{//要么是函数，要么是'(' declarator ')'，也就是函数指针的情况之类
+        if(!ctx.getChild(length-2).ruleIndex===Dict.RULE_directDeclarator){//函数调用的情况
+
+        }
     }
 };
 

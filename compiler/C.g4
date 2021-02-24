@@ -291,9 +291,9 @@ declarator
 directDeclarator
     :   Identifier
     |   '(' declarator ')'
-    |   directDeclarator '[' constantExpression? ']'
+    |   directDeclarator '[' constantExpression ']'
     |   directDeclarator '(' parameterTypeList ')'
-    |   directDeclarator '(' identifierList? ')'
+    |   directDeclarator '('')'
     |   Identifier ':' DigitSequence  // bit field
     |   '(' typeSpecifier? pointer directDeclarator ')' // function pointer like: (__cdecl *f)
     ;

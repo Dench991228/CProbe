@@ -8,7 +8,7 @@ function DirectDeclarator(){
 DirectDeclarator.prototype.ArraySizes = undefined;//数组各个维度的constantExpression
 DirectDeclarator.prototype.ConstPtr = undefined;//用来描述各个指针是不是constant
 DirectDeclarator.prototype.Callable = false;//描述是不是一个函数
-DirectDeclarator.prototype.Param = undefined;//参数列表
+DirectDeclarator.prototype.Param = undefined;//参数列表，一个SymbolTable
 
 DirectDeclarator.prototype.addArrayDimension = function(expr){
     if(this.ArraySizes === undefined){
