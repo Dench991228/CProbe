@@ -27,7 +27,7 @@ VariableDeclarator.prototype.DirectDeclarators = [];//各级Declarator
  * @param isConstant 新加进来的一级指针是不是常数指针
  * */
 VariableDeclarator.prototype.addPointer = function(isConstant){
-    let current_declarator = this.DirectDeclarators.peekLast();
+    let current_declarator = this.DirectDeclarators.peekFirst();
     current_declarator.addPointer(isConstant);
 }
 
@@ -42,7 +42,7 @@ VariableDeclarator.prototype.addDeclarator = function(){
  * 给当前的declarator添加一个数组维度的尺寸
  * */
 VariableDeclarator.prototype.addArrayDimension = function(expr){
-    this.DirectDeclarators.peekLast().addArrayDimension(expr);
+    this.DirectDeclarators.peekFirst().addArrayDimension(expr);
 }
 
 VariableDeclarator.prototype.toString = function(){
