@@ -84,7 +84,31 @@
   funlist[0] = { locNum: 0, argNum: 0, retNum: 0, ip: 0 }//funlist[id].argNum + funlist[id].retNum + funlist[id].locNum + funlist[optnum].ip
   funlist[1] = { locNum: 0, argNum: 0, retNum: 1, ip: 5 }//funlist[id].argNum + funlist[id].retNum + funlist[id].locNum + funlist[optnum].ip
   */
-  getAllGlobal(
+  var codelist = [
+    {opt:"globa",num:0},
+    {opt:"push",num:1},
+    {opt:"store.64"},
+    {opt:"stackalloc",num:1},
+    {opt:"call",num:1},
+    {opt:"popn",num:1},
+    {opt:"exit"},
+    {opt:"arga",num:0},
+    {opt:"globa",num:0},
+    {opt:"load.64"},
+    {opt:"store.64"},
+    {opt:"ret"}
+  ]
+  var functionlist = [
+    { locNum: 0, argNum: 0, retNum: 0, ip: 0 },
+    { locNum: 0, argNum: 0, retNum: 1, ip: 7 }
+  ]
+  var globallist = [
+    {len:8,item:"0000000000000000"},
+    {len:4,item:"6d61696e"},
+    {len:6,item:"5f7374617274"}
+  ]
+  runAll(codelist,functionlist,globallist)
+  /*getAllGlobal(
     [
       {len:8,item:"0000000000000000"},
       {len:4,item:"6d61696e"},
@@ -106,7 +130,7 @@
   putNewCode({opt:"globa",num:0}) 
   putNewCode({opt:"load.64"}) 
   putNewCode({opt:"store.64"}) 
-  putNewCode({opt:"ret"}) 
+  putNewCode({opt:"ret"})*/ 
   //runAll()
   /*
   static: 0 0 0 0 0 0 0 0 (`\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}`)
@@ -128,9 +152,9 @@
       4: Ret
   }
   */
-  while (code[ip].opt != "exit") {
+  /*while (code[ip].opt != "exit") {
       run();
-  }
+  }*/
   
 
 </script>

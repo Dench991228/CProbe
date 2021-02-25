@@ -56,10 +56,12 @@ var funlist = new Array()//函数表
 //funlist[1] = { locNum: 0, argNum: 0, retNum: 1, ip: 3 }//funlist[id].argNum + funlist[id].retNum + funlist[id].locNum + funlist[optnum].ip
 //funlist[2] = { locNum: 1, argNum: 0, retNum: 1, ip: 7 }//funlist[id].argNum + funlist[id].retNum + funlist[id].locNum + funlist[optnum].ip
 
-function runAll(codeList,functionList,globalList){
-    code = codeList
+function runAll(codeList,functionList,globalSpaceList){
+    for( var i = 0 ; i < codeList.length ; i ++ ){
+        putNewCode(codeList[i])
+    }
     funlist = functionList
-    globalSpace = globalList
+    getAllGlobal(globalSpaceList)
     while (code[ip].opt != "exit") {
         run();
     }
@@ -195,6 +197,7 @@ function putNewGlobal(newGlobalBit){
  * 例如{len:6,item:"5f7374617274"(这是'_start')}
  */
 function getAllGlobal(GList){
+    // console.log(GList)
     for( var i = 0 ; i < GList.length ; i ++ ){
         var add = "", len = ""
         add = (gbp + gp + 1).toString(16)
@@ -225,8 +228,6 @@ function getAllGlobal(GList){
  */
 function putNewCode(newCode){
     code.push(newCode);
-    // code.push(in2);
-    // code.push(in1);
     cp += 1;
 }
 
@@ -322,6 +323,7 @@ function run(){
                 for(let i=0; i<optnum; i++){
                     popNum()
                 }
+                ip += 1
                 break;
             case "dup":
                 temp = popNum()
