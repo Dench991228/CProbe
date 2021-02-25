@@ -633,6 +633,7 @@ MyCustomListener.prototype.enterPointer = function(ctx) {
     }else{
         declarator.addPointer(false);
     }
+    console.log(this.DeclaratorStack.peekLast());
 };
 
 // Exit a parse tree produced by CParser#pointer.
@@ -695,7 +696,8 @@ MyCustomListener.prototype.enterParameterDeclaration = function(ctx) {
  * 此时应该导出相关的declaration
  * */
 MyCustomListener.prototype.exitParameterDeclaration = function(ctx) {
-    this.DeclarationStack.peekLast().exportDeclarator(this.SymbolTableStack.peekLast());
+    this.DeclarationStack.pop().exportDeclarator(this.SymbolTableStack.peekLast());
+    this.DeclaratorStack.pop();
 };
 
 
