@@ -45,6 +45,13 @@ VariableDeclarator.prototype.addArrayDimension = function(expr){
     this.DirectDeclarators.peekFirst().addArrayDimension(expr);
 }
 
+/**
+ * 把当前的declarator设置为callable
+ * */
+VariableDeclarator.prototype.setCallable = function(){
+    this.DirectDeclarators.peekFirst().Callable = true;
+}
+
 VariableDeclarator.prototype.toString = function(){
     let identifier_name = "Identifier: "+this.Identifier;
     let pointer_information = "Pointer: "+ this.ConstantPointer;

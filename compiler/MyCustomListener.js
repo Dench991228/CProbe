@@ -1,5 +1,6 @@
 // Generated from C.g4 by ANTLR 4.7
 // jshint ignore: start
+const TerminalNode = require("./antlr4/tree/Tree").TerminalNode;
 Object.prototype.toString = function(){
     let result = "";
     for(let item in this){
@@ -600,8 +601,12 @@ MyCustomListener.prototype.enterDirectDeclarator = function(ctx) {
         console.log("constant expression: "+ctx.getChild(length-2).getText());
         current_declarator.addArrayDimension(ctx.getChild(length-2).getText());
     }else{//要么是函数，要么是'(' declarator ')'，也就是函数指针的情况之类
-        if(!ctx.getChild(length-2).ruleIndex===Dict.RULE_directDeclarator){//函数调用的情况
-
+        if(ctx.getChild(length-2) instanceof TerminalNode&&ctx.getChild(length-2).symbol.type===Tokens.LeftParen){
+            current_declarator.setCallable();
+            console.log("callable detected");
+        }else if(ctx.getChild(length-2).ruleIndex === Dict.RULE_parameterTypeList){
+            current_declarator.setCallable();
+            console.log("callable detected");
         }
     }
 };
@@ -645,11 +650,22 @@ MyCustomListener.prototype.exitTypeQualifierList = function(ctx) {
 
 
 // Enter a parse tree produced by CParser#parameterTypeList.
+/**
+ * 进入一个paramTypeList，推入一个新的符号表
+ * */
 MyCustomListener.prototype.enterParameterTypeList = function(ctx) {
+    this.SymbolTableStack.push(new SymbolTable());
 };
 
 // Exit a parse tree produced by CParser#parameterTypeList.
+/**
+ * 离开一个parameterTypeList，弹出一个符号表，并且将这个符号表交给最顶上的declarator
+ * TODO setParam
+ * */
 MyCustomListener.prototype.exitParameterTypeList = function(ctx) {
+    let current_table = this.SymbolTableStack.pop();
+    let current_declarator = this.DeclaratorStack.peekLast();
+    console.log(current_table);
 };
 
 
@@ -663,11 +679,23 @@ MyCustomListener.prototype.exitParameterList = function(ctx) {
 
 
 // Enter a parse tree produced by CParser#parameterDeclaration.
+/**
+ * 进入一个parameterDeclaration，此时应该信创建一个declaration放到declaration里面
+ * */
 MyCustomListener.prototype.enterParameterDeclaration = function(ctx) {
+    let current_declaration = new VariableDeclaration();
+    let current_declarator = new VariableDeclarator();
+    current_declaration.CurrentDeclarator = current_declarator;
+    this.DeclarationStack.push(current_declaration);
+    this.DeclaratorStack.push(current_declarator);
 };
 
 // Exit a parse tree produced by CParser#parameterDeclaration.
+/**
+ * 此时应该导出相关的declaration
+ * */
 MyCustomListener.prototype.exitParameterDeclaration = function(ctx) {
+    this.DeclarationStack.peekLast().exportDeclarator(this.SymbolTableStack.peekLast());
 };
 
 
