@@ -32,7 +32,7 @@ var codelist = [
     { locNum: 0, argNum: 0, retNum: 1, ip: 7 }
   ]
   var globallist = [
-    {len:8,item:"0000000000000000"},
+    {len:8,item:"0000000000000000"},//占字节数+所对应的16进制字符串
     {len:4,item:"6d61696e"},
     {len:6,item:"5f7374617274"}
   ]
