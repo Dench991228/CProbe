@@ -4,8 +4,13 @@
  * |                      | 代码段（指针不可访问，随解释执行向下生长）
  * |                      | 
  * |——————————————————————| 2MB 0x001fffff
- * |                      | 全局变量段
+ * |      全局变量段       | 
+ * |           |          | 
+ * |           √          |
  * |                      |
+ * |           ^          |
+ * |           |          |
+ * |     全局变量表        | 
  * |——————————————————————| 4MB 0x003fffff 
  * |          堆          | （堆从小地址向大地址生长）
  * |          |           |
@@ -27,22 +32,26 @@
 var id = 0//当前被调用的函数ID
 var code = new Array();//代码段
 var ip = 0;//IP寄存器
+var oldip;
 var globalSpace = new Array();//全局变量空间
+var globalList = new Array();//全局变量表
 var stack = new Array();//栈空间
 var heap = new Array();//堆空间
 var cp = -1;//代码偏移指针
 var gp = -1;//全局变量偏移指针
+var glp = 7;//全局变量表指针
 var hp = -1;//堆偏移指针
 var sp = -1;//栈偏移指针
 var bp = 7;//帧指针
 var cbp = 0x00000000;//代码段基指针
-var gbp = 0x001fffff;//全局变量基指针
-var hbp = 0x003fffff;//堆基指针
+var gbp = 0x00200000;//全局变量基指针
+var glbp = 0x003fffff;//全局变量表基指针
+var hbp = 0x00400000;//堆基指针
 var sbp = 0x00ffffff;//栈基指针
 var loc = 0;//loc指针
 var arg = 0;//arg指针
 
-var funlist = new Array()
+var funlist = new Array()//函数表
 //funlist[0] = { locNum: 0, argNum: 0, retNum: 0, ip: 0 }//funlist[id].argNum + funlist[id].retNum + funlist[id].locNum + funlist[optnum].ip
 //funlist[1] = { locNum: 0, argNum: 0, retNum: 1, ip: 3 }//funlist[id].argNum + funlist[id].retNum + funlist[id].locNum + funlist[optnum].ip
 //funlist[2] = { locNum: 1, argNum: 0, retNum: 1, ip: 7 }//funlist[id].argNum + funlist[id].retNum + funlist[id].locNum + funlist[optnum].ip
@@ -56,17 +65,107 @@ function runAll(codeList,functionList,globalList){
     }
 }
 
-function printStack(){
-    var l = stack.length
+/**
+ * 在控制台展示进程堆栈情况
+ */
+function printProcess(){
     var out = ""
-    for(var i = l-1;i>=0 ;i -=8){
-        out = out + '|' + stack[i] + stack[i-1]
-            + stack[i-2] + stack[i-3] + stack[i-4]
-            + stack[i - 5] + stack[i - 6] + stack[i - 7] + '| 0x00' + (sbp - i).toString(16) + '\n'
+    out += "[" + oldip + "]: " 
+        + code[oldip].opt + " " 
+        + (code[oldip].num != undefined ? code[oldip].num:"") + "\n\n"
+    //out += ("sp: 0x00" + (sbp - sp).toString(16)) + "\n" 
+    //    + ("hp: 0x00" + (hbp + hp).toString(16)) + "\n\n"
+    out += "           |      code      |     \n"
+    /*var in1 = "", in2 = ""
+    for (var i = 0; i < code[oldip].opt.length; i++) {
+        if (in1 == "")
+            in1 = code[oldip].opt.charCodeAt(i).toString(16);
+        else
+            in1 += code[oldip].opt.charCodeAt(i).toString(16);
     }
+    in2 = (code[oldip].num != undefined ? code[oldip].num.toString(16) : "0000000000000000")
+    while (in1.length < 16) {
+        in1 =  in1 + "0"
+    }
+    while (in2.length < 16) {
+        in2 = "0" + in2
+    }
+    if(oldip!=0){
+        out += "           |................|     \n"
+    }
+    var out1 = (cbp + oldip * 16).toString(16) 
+    var out2 = (cbp + oldip * 16 + 8).toString(16)
+    while (out1.length < 8) {
+        out1 = "0" + out1
+    }
+    while (out2.length < 8) {
+        out2 = "0" + out2
+    }
+    out += '0x' + out1
+        + " |" + in1 + "| <- ip\n" 
+        + '0x' + out2
+        + " |" + in2 + "|     \n"
+    */
+    out += "           |................|     \n"
+    out += "           |     global     |     \n"
+    var l = globalSpace.length
+    for (var i = 0; i < l; i += 8) {
+        out = out + '0x00' + (gbp + i).toString(16)
+            + ' |' + (globalSpace[i] != undefined ? globalSpace[i] : "00")
+            + (globalSpace[i + 1] != undefined ? globalSpace[i + 1] : "00")
+            + (globalSpace[i + 2] != undefined ? globalSpace[i + 2] : "00")
+            + (globalSpace[i + 3] != undefined ? globalSpace[i + 3] : "00")
+            + (globalSpace[i + 4] != undefined ? globalSpace[i + 4] : "00")
+            + (globalSpace[i + 5] != undefined ? globalSpace[i + 5] : "00")
+            + (globalSpace[i + 6] != undefined ? globalSpace[i + 6] : "00")
+            + (globalSpace[i + 7] != undefined ? globalSpace[i + 7] : "00")
+            + '| ' + (i >= l - 8 ? "<- gp  0x00" + (gbp + gp).toString(16) : "     ") + '\n'
+    }
+    out += "           |................|     \n"
+    var l = globalList.length
+    for (var i = l - 1; i >= 0; i -= 8) {
+        out = out + "0x00" + (glbp - i).toString(16)
+            + ' |' + (globalList[i] != undefined ? globalList[i] : "00")
+            + (globalList[i - 1] != undefined ? globalList[i - 1] : "00")
+            + (globalList[i - 2] != undefined ? globalList[i - 2] : "00")
+            + (globalList[i - 3] != undefined ? globalList[i - 3] : "00")
+            + (globalList[i - 4] != undefined ? globalList[i - 4] : "00")
+            + (globalList[i - 5] != undefined ? globalList[i - 5] : "00")
+            + (globalList[i - 6] != undefined ? globalList[i - 6] : "00")
+            + (globalList[i - 7] != undefined ? globalList[i - 7] : "00")
+            + '| ' + (i >= l - 8 ? "<- glp 0x00" + (glbp - glp + 8).toString(16) : "     ") + '\n'
+    }
+    out += "           |      heap      |     \n"
+    l = heap.length
+    for (var i = 0; i < l; i += 8) {
+        out = out + '0x00' + (hbp + i).toString(16)
+            + ' |' + (heap[i] != undefined ? heap[i] : "00")
+            + (heap[i + 1] != undefined ? heap[i + 1] : "00")
+            + (heap[i + 2] != undefined ? heap[i + 2] : "00")
+            + (heap[i + 3] != undefined ? heap[i + 3] : "00")
+            + (heap[i + 4] != undefined ? heap[i + 4] : "00")
+            + (heap[i + 5] != undefined ? heap[i + 5] : "00")
+            + (heap[i + 6] != undefined ? heap[i + 6] : "00")
+            + (heap[i + 7] != undefined ? heap[i + 7] : "00")
+            + '| ' + (i >= l - 8 ? "<- hp  0x00" + (hbp + hp).toString(16) : "     ") + '\n'
+    }
+    out += "           |................|     \n"
+    l = stack.length
+    for (var i = l - 1; i >= 0; i -= 8) {
+        out = out + "0x00" + (sbp - i).toString(16) 
+            + ' |' + (stack[i] != undefined ? stack[i] : "00")
+            + (stack[i - 1] != undefined ? stack[i - 1] : "00")
+            + (stack[i - 2] != undefined ? stack[i - 2] : "00")
+            + (stack[i - 3] != undefined ? stack[i - 3] : "00")
+            + (stack[i - 4] != undefined ? stack[i - 4] : "00")
+            + (stack[i - 5] != undefined ? stack[i - 5] : "00")
+            + (stack[i - 6] != undefined ? stack[i - 6] : "00")
+            + (stack[i - 7] != undefined ? stack[i - 7] : "00")
+            + '| ' + (i >= l - 8 ? "<- sp  0x00" + (sbp - sp).toString(16) : "     ") + '\n'
+    }
+    out += "           |     stack      |     \n"
     console.log(out)
 }
-
 /**
  * 进栈原子操作（只操作一个字节）
  */
@@ -86,9 +185,39 @@ function popStack(){
 /**
  * 获取新的全局变量（单个字节读入）
  */
-function getNewCode(newGlobalBit){
+function putNewGlobal(newGlobalBit){
     globalSpace.push(newGlobalBit);
     gp += 1;
+}
+
+/**
+ * 获取全体全局变量
+ * 例如{len:6,item:"5f7374617274"(这是'_start')}
+ */
+function getAllGlobal(GList){
+    for( var i = 0 ; i < GList.length ; i ++ ){
+        var add = "", len = ""
+        add = (gbp + gp + 1).toString(16)
+        len = GList[i].len.toString(16)
+        while (add.length < 16) {
+            add = "0" + add
+        }
+        // while (len.length < 8) {
+        //     len = "0" + len
+        // }
+        var out = add //+ len
+        // console.log(out)
+        for( var j = 0 ; j < out.length ; j += 2){
+            globalList[glp + j / 2 - 7] = out[out.length - 2 - j] + out[out.length - j - 1] 
+            // console.log(globalList)
+        }
+        glp += 8
+        for (var k = 0; k < GList[i].item.length ;  k += 2){
+            gp += 1
+            globalSpace[gp] = GList[i].item[k] + GList[i].item[k + 1]
+            // console.log(globalSpace)
+        }
+    }
 }
 
 /**
@@ -96,6 +225,8 @@ function getNewCode(newGlobalBit){
  */
 function putNewCode(newCode){
     code.push(newCode);
+    // code.push(in2);
+    // code.push(in1);
     cp += 1;
 }
 
@@ -103,14 +234,6 @@ function putNewCode(newCode){
  * 绝对逻辑地址访问
  */
 function accessAddress(address){
-    // console.log("add")
-    // console.log(address)
-    // console.log("sbp")
-    // console.log(sbp)
-    // console.log("sp")
-    // console.log(sp)
-    // console.log("-")
-    // console.log(sbp - sp)
     if(address<0x00200000||address>0x00ffffff){
         return "illegal";
     }
@@ -132,17 +255,10 @@ function accessAddress(address){
     }
 }
 
-// 逻辑地址存储，待补充
-function storeAddress(address, val){
-    // console.log("add")
-    // console.log(address)
-    // console.log("sbp")
-    // console.log(sbp)
-    // console.log("sp")
-    // console.log(sp)
-    // console.log("-")
-    // console.log(sbp - sp)
-    // console.log(address) 
+/**
+ * 逻辑地址存储
+ */
+function storeAddress(address, val){ 
     if (address < 0x00200000 || address > 0x00ffffff) {
         print("illegal")
     }
@@ -162,13 +278,13 @@ function storeAddress(address, val){
         }
     }
 }
-//event CE_silkroad.2
+
 /**
  * 指令执行模块
  */
 function run(){
     if(ip<code.length){
-        console.log("ip:[" + ip + "],code:" + code[ip].opt + " " + code[ip].num);
+        oldip = ip
         /**
          * 下面是需要执行的指令
          * 无操作数指令
@@ -223,8 +339,12 @@ function run(){
                 pushNum(temp)
                 ip += 1
                 break;
-            case "globa":  
-                pushNum(gbp + gp)
+            case "globa":
+                var need = "0x" + globalList[7 + 8 * optnum] + globalList[6 + 8 * optnum]
+                    + globalList[5 + 8 * optnum] + globalList[4 + 8 * optnum]
+                    + globalList[3 + 8 * optnum] + globalList[2 + 8 * optnum]
+                    + globalList[1 + 8 * optnum] + globalList[8 * optnum]
+                pushNum(parseInt(need))
                 ip += 1
                 break;
             case "load.8":
@@ -263,10 +383,12 @@ function run(){
                 temp = popNum()
                 let addr = getAllocAddr(temp)
                 pushNum(addr)
+                ip += 1
                 break;
             case "free":
                 temp = popNum()
                 freeAlloc(temp)
+                ip += 1
                 break;
             case "stackalloc":
                 for(var i=0;i<optnum;i++){
@@ -344,18 +466,18 @@ function run(){
                 right = HexToFloat(popBytes())
                 left = HexToFloat(popBytes())
                 var result = left / right
-                console.log(right)
-                console.log(left)
-                console.log(result)
+                // console.log(right)
+                // console.log(left)
+                // console.log(result)
                 pushNum(SingleToHex(result))
                 ip += 1
                 break;
             case "div.u":  
                 right = BigInt(popNum() >>> 0)
                 left = BigInt(popNum() >>> 0)
-                console.log(right)
-                console.log(left)
-                console.log(left / right)
+                // console.log(right)
+                // console.log(left)
+                // console.log(left / right)
                 pushNum(left / right)
                 ip += 1
                 break;
@@ -589,8 +711,12 @@ function run(){
             case "println":  break;
             case "panic":  break;
         }
-        console.log("sp: 0x00" + (sbp - sp).toString(16))
-        printStack()
+        // console.log("sp: 0x00" + (sbp - sp).toString(16))
+        // console.log("hp: 0x00" + (hbp + hp).toString(16))
+        // printHeap()
+        // printStack()
+        printProcess()
+        // console.log("")
     }
     else{
         return;
@@ -820,6 +946,7 @@ function FillString(t, n, b) {
 // 用于alloc
 // 使用首次匹配原则，堆的块结构见计组9.9
 function getAllocAddr(size){
+    // console.log("heapsize: " + size)
     let i = 0
     let temp
     while (i<heap.length){
@@ -848,6 +975,7 @@ function getAllocAddr(size){
         }
     }
     // 无可分配的空闲块，在堆的尾部增加新块
+    // console.log("no new")
     temp = heap.length
     let bits = 6
     heap.push("01")
@@ -877,6 +1005,7 @@ function getAllocAddr(size){
 // 根据地址得到块的大小
 function getAllocBlockSize(val){
     let str = ""+heap[val+1]+heap[val+2]+heap[val+3]
+    // console.log("str:" + str)
     return parseInt(str, 16)
 }
 

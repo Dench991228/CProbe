@@ -70,7 +70,7 @@
   putNewCode({opt:"ftoi"})  
   putNewCode({opt:"store.64"})
   putNewCode({opt:"ret"})*/
-  putNewCode({opt:"globa",num:0})
+  /*putNewCode({opt:"globa",num:0})
   putNewCode({opt:"push",num:0})
   putNewCode({opt:"store.64"})  
   putNewCode({opt:"call",num:1}) 
@@ -83,6 +83,30 @@
   putNewCode({opt:"ret"})
   funlist[0] = { locNum: 0, argNum: 0, retNum: 0, ip: 0 }//funlist[id].argNum + funlist[id].retNum + funlist[id].locNum + funlist[optnum].ip
   funlist[1] = { locNum: 0, argNum: 0, retNum: 1, ip: 5 }//funlist[id].argNum + funlist[id].retNum + funlist[id].locNum + funlist[optnum].ip
+  */
+  getAllGlobal(
+    [
+      {len:8,item:"0000000000000000"},
+      {len:4,item:"6d61696e"},
+      {len:6,item:"5f7374617274"}
+    ]
+  )
+
+  funlist[0] = { locNum: 0, argNum: 0, retNum: 0, ip: 0 }//funlist[id].argNum + funlist[id].retNum + funlist[id].locNum + funlist[optnum].ip
+  funlist[1] = { locNum: 0, argNum: 0, retNum: 1, ip: 6 }//funlist[id].argNum + funlist[id].retNum + funlist[id].locNum + funlist[optnum].ip
+  
+  putNewCode({opt:"globa",num:0}) 
+  putNewCode({opt:"push",num:1}) 
+  putNewCode({opt:"store.64"}) 
+  putNewCode({opt:"stackalloc",num:1}) 
+  putNewCode({opt:"call",num:1}) 
+  putNewCode({opt:"exit"})
+
+  putNewCode({opt:"arga",num:0}) 
+  putNewCode({opt:"globa",num:0}) 
+  putNewCode({opt:"load.64"}) 
+  putNewCode({opt:"store.64"}) 
+  putNewCode({opt:"ret"}) 
   //runAll()
   /*
   static: 0 0 0 0 0 0 0 0 (`\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}`)
