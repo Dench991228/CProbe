@@ -21,6 +21,32 @@
       <div class="class1" id="6">int a=6</div>
     </div>
   </div>
+  <script type="text/javascript">
+    // Firefox, Google Chrome, Opera, Safari, Internet Explorer from version 9
+    function OnInput (event) {
+      // console.log (parseInt(event.target.value[event.target.value.length - 1],16));
+      if(event.target.value[event.target.value.length - 1] === '\n'){
+        console.log (event.target.value);
+      }
+    }
+    // Internet Explorer
+    function OnPropChanged (event) {
+      if (event.propertyName.toLowerCase () == "value") {
+        alert ("The new content: " + event.srcElement.value);
+      }
+    }
+ </script>
+ <textarea 
+  type="textarea" 
+  oninput="OnInput (event)" 
+  onpropertychange="OnPropChanged (event)" 
+  style="
+    min-height:300px;
+    min-width:300px;
+    max-height:300px;
+    max-width:300px;
+  "
+ ></textarea> 
 </body>
 </html>
 <script type="text/javascript" src="Vm.js"></script>
