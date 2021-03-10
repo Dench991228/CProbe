@@ -10,10 +10,20 @@
     <h3>enter code here...</h3>
     <div contenteditable="true" id="editor" style="min-height: 30ex; border: 1px solid lightgray;width:80%">
     </div>
-    <button onclick="executeParse()">Compiler!</button>
-    <h3>Compilation logging</h3>
-    <div id="output" style="min-height: 30ex; border:1px solid lightgray;">
+    <button onclick="executeParse()">Compile</button><br>
+    <!--这里是展现编译过程的-->
+    <div style="display: inline-block; width:45%;vertical-align: top">
+        <h3>Compilation logging</h3>
+        <div id="output" style="min-height: 30ex; border:1px solid lightgray;">
 
+        </div>
+    </div>
+    <!--展现符号表-->
+    <div style="display: inline-block; width:45%;vertical-align: top">
+        <h3>Symbol Table</h3>
+        <div id="table" style="min-height: 30ex; border:1px solid lightgray;">
+
+        </div>
     </div>
 </body>
 </html>
